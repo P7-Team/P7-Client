@@ -1,13 +1,10 @@
 import socket
 from protocol import encode_msg, decode_msg, MSG_TYPE_CONNECT, MSG_TYPE_MESSAGE
 
-LOCAL_PORT = 55667
-
 SERVER_PORT = 44556
 SERVER_IP = '127.0.0.1'
 
-REMOTE_IP = '127.0.0.1'
-
+SYNC_ID = 'This is sync ID'
 
 
 def run()->None:
@@ -22,9 +19,9 @@ def connect()->socket.socket:
     server_conn.connect((SERVER_IP, SERVER_PORT))
 
     # Send initial connect message
-    print(f'Sending connect message to SERVER with requested recepient IP={REMOTE_IP}, PORT={REMOTE_PORT}, MSG_TYPE={MSG_TYPE_CONNECT}')
-    connect_msg:bytes = encode_msg(MSG_TYPE_CONNECT, REMOTE_IP, REMOTE_PORT)
-    server_conn.send(connect_msg)
+    print(f'Sending connect message to SERVER with requested connection ID={SYNC_ID}, MSG_TYPE={MSG_TYPE_CONNECT}')
+    connect_msg:bytes = encode_msg(MSG_TYPE_CONNECT, SYNC_ID)
+    server_conn.sendall(connect_msg)
 
     return server_conn
 
@@ -33,7 +30,7 @@ def ping_pong(conn:socket.socket)->None:
         while True:
             # Start by sending a message
             msg:bytes = create_content_message()
-            conn.send(msg)
+            conn.sendall(msg)
             
             # Receive message from connection
             data:bytes = conn.recv(1024)
@@ -50,14 +47,10 @@ def ping_pong(conn:socket.socket)->None:
 def create_content_message():
     randi_msg:str = 'This here is the content'#str(random.randrange(1001, 111000))
     print(f'Creating message with content={randi_msg}, msg_type={MSG_TYPE_MESSAGE}')
-    msg:bytes = encode_msg(MSG_TYPE_MESSAGE, REMOTE_IP, REMOTE_PORT, randi_msg)
+    msg:bytes = encode_msg(MSG_TYPE_MESSAGE, SYNC_ID, randi_msg)
     return msg
 
 if __name__ == '__main__':
-    if True:
-        temp = REMOTE_PORT
-        REMOTE_PORT = LOCAL_PORT
-        LOCAL_PORT = temp
     print('Starting message PingPong...')
     run()
     print('Finished message PingPong...')

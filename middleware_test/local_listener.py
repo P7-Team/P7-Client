@@ -4,94 +4,90 @@ from ping_pong import SERVER_IP, SERVER_PORT
 from protocol import decode_msg, MSG_TYPE_CONNECT, MSG_TYPE_MESSAGE
 from queue import Queue
 
-established_connections: dict = {}
-waiting_connections: dict = {}
-conn_to_addr: dict = {}
-addr_to_conn: dict = {}
-message_queues: dict = {}
-port_map: dict = {}
-
 sel = selectors.DefaultSelector()
+
+addr_to_conn:dict = {}
+conn_to_addr:dict = {}
+connections:dict = {}
+message_queues:dict = {}
 
 def start_listening()->None:
     s: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((SERVER_IP, SERVER_PORT))
     s.listen(100)
-    #s.setblocking(False) - This seems to break everything
     sel.register(s, selectors.EVENT_READ, accept_new_connection)
 
 def accept_new_connection(socket:socket.socket, mask)->None:
     conn, addr = socket.accept()
     print(f'Accepted connection={conn}, from={addr}')
-    #conn.setblocking(False) - This seems to break everything
     sel.register(conn, selectors.EVENT_READ, pair_connection)
 
     # Store the address information for later use
+    addr_to_conn[addr] = conn
+    conn_to_addr[conn] = addr
 
-    if conn not in conn_to_addr.keys():
-        conn_to_addr[conn] = addr
-        addr_to_conn[addr] = conn
 
 def pair_connection(conn:socket.socket, mask)->None:
     data:bytes = conn.recv(1024)
-    msg_type, ip, port, content = decode_msg(data)
-    addr = conn_to_addr[conn]
+    msg_type, id, content = decode_msg(data)
+    source_addr = conn_to_addr[conn]
 
     # Handle based on message type
     if msg_type == MSG_TYPE_CONNECT:
-        handle_connect(addr, ip, port)
+        handle_connect(source_addr, id)
 
 
     elif msg_type == MSG_TYPE_MESSAGE:
-        handle_message(addr, ip, port, data)
+        handle_message(source_addr, id, data)
 
 
-def send_queued_messages(from_addr, to_addr)->None:
-    # Check if there are a queue for the sender
-    if to_addr not in message_queues.keys():
-        return
-    
-    queue:Queue = message_queues[to_addr]
-    to_conn: socket.socket = addr_to_conn[to_addr]
-    while queue.not_empty:
-        queued_msg:bytes = queue.get()
-        to_conn.send(queued_msg)
+def send_queued_messages(connection_id)->None:
+    recipient_list:list = connections[connection_id]
 
+    if len(recipient_list) > 1:
+        if connection_id in message_queues.keys():
+            queue:Queue = message_queues[connection_id]
+            while queue.not_empty:
+                msg, sender_addr = queue.get()
+                for addr in recipient_list:
+                    if addr != sender_addr:
+                        conn:socket.socket = addr_to_conn[addr]
+                        conn.send(msg)
+            # All in queue have been sent, remember to pop
+            message_queues.pop(connection_id)
 
+def handle_connect(from_addr, connection_id)->None:
+    # Check if connection_id already exists
+    if connection_id not in connections.keys():
+        connections[connection_id] = list()
 
-def handle_connect(addr, remote_ip, remote_port)->None:
-    print(f'Checking local addr={addr} to remote information={(remote_ip, remote_port)}')
-    if addr in established_connections.keys() or \
-        (remote_ip, remote_port) not in waiting_connections.keys():
-        return
-    
-    # Set both ways as established
-    established_connections[addr] = (remote_ip, remote_port)
-    established_connections[(remote_ip, remote_port)] = addr
-    # Remove connections from waiting
-    waiting_connections.pop(addr)
-    waiting_connections.pop((remote_ip, remote_port))
+    # Add the address to the list on the connection
+    connections[connection_id].append(from_addr)
 
+    print(f'Handled connect message from addr={from_addr} on ID={connection_id}')
     # Send the messages that have been queued from the remote side
-    send_queued_messages(addr, (remote_ip, remote_port))
+    send_queued_messages(connection_id)
 
-def handle_message(sender_addr, destination_ip:str, destination_port:int, msg:bytes)->None:
-    if (destination_ip, destination_port) in established_connections.keys():
-        print(f'Connection exists, sending message to={(destination_ip, destination_port)}')
-        destination_conn:socket.socket = addr_to_conn[(destination_ip, destination_port)]
-        destination_conn.send(msg)
-        return
+def handle_message(sender_addr, connection_id:str, msg:bytes)->None:
+    recipient_list:list = connections[connection_id]
 
+    print(f'Handle message initiated by sender_addr={sender_addr} for connection_id={connection_id}')
 
-    if (destination_ip, destination_port) not in message_queues.keys(): # Create a new queue and queue new message
-        print(f'Stuff added for queue belonging to={(destination_ip, destination_port)}')
-        queue: Queue = Queue(maxsize=0)
-        queue.put(msg)
-        message_queues[(destination_ip, destination_port)] = queue
-    else: # Get existing queue and queue new mssage
-        print(f'Stuff added for queue belonging to={(destination_ip, destination_port)}')
-        queue: Queue = message_queues[(destination_ip, destination_port)]
-        queue.put(msg)
+    # There are other connected besides you
+    if len(recipient_list) > 1:
+        for addr in recipient_list:
+            if addr != sender_addr:
+                conn:socket.socket = addr_to_conn[addr]
+                conn.send(msg)
+
+    else:
+        # Check if queue exists
+        if connection_id not in message_queues.keys():
+            message_queues[connection_id] = Queue(maxsize=0)
+        
+        print(f'Not enough connected to ID={connection_id} from sender_addr={sender_addr}')
+        queue:Queue = message_queues[connection_id]
+        queue.put((msg, sender_addr))
 
 
 if __name__ == '__main__':
