@@ -1,8 +1,9 @@
 import socket
 import selectors
 from ping_pong import SERVER_IP, SERVER_PORT
-from protocol import decode_msg, MSG_TYPE_CONNECT, MSG_TYPE_MESSAGE
+from protocol import decode_msg, MSG_TYPE_CONNECT, MSG_TYPE_MESSAGE, extract_msg, re_encode_msg
 from queue import Queue
+from tcp_util import recv_next_msg, is_message_on_stream
 
 sel = selectors.DefaultSelector()
 
@@ -19,7 +20,7 @@ def start_listening()->None:
 
 def accept_new_connection(socket:socket.socket, mask)->None:
     conn, addr = socket.accept()
-    print(f'Accepted connection={conn}, from={addr}')
+    print(f'Accepted connection=<{conn}>, from=<{addr}>')
     sel.register(conn, selectors.EVENT_READ, pair_connection)
 
     # Store the address information for later use
@@ -28,18 +29,19 @@ def accept_new_connection(socket:socket.socket, mask)->None:
 
 
 def pair_connection(conn:socket.socket, mask)->None:
-    data:bytes = conn.recv(1024)
-    msg_type, id, content = decode_msg(data)
-    source_addr = conn_to_addr[conn]
+    while is_message_on_stream(conn):
+        data:bytes = recv_next_msg(conn)
+        extracted_msg:bytes = extract_msg(data)
+        msg_type, id, content = decode_msg(extracted_msg)
+        source_addr = conn_to_addr[conn]
 
-    # Handle based on message type
-    if msg_type == MSG_TYPE_CONNECT:
-        handle_connect(source_addr, id)
+        # Handle based on message type
+        if msg_type == MSG_TYPE_CONNECT:
+            handle_connect(source_addr, id)
 
 
-    elif msg_type == MSG_TYPE_MESSAGE:
-        handle_message(source_addr, id, data)
-
+        elif msg_type == MSG_TYPE_MESSAGE:
+            handle_message(source_addr, id, data)
 
 def send_queued_messages(connection_id)->None:
     recipient_list:list = connections[connection_id]
@@ -47,12 +49,13 @@ def send_queued_messages(connection_id)->None:
     if len(recipient_list) > 1:
         if connection_id in message_queues.keys():
             queue:Queue = message_queues[connection_id]
-            while queue.not_empty:
+            while not queue.empty():
                 msg, sender_addr = queue.get()
                 for addr in recipient_list:
                     if addr != sender_addr:
+                        print(f'Sending queued message <{msg}> from <{sender_addr}> to <{addr}>')
                         conn:socket.socket = addr_to_conn[addr]
-                        conn.send(msg)
+                        conn.send(re_encode_msg(msg))
             # All in queue have been sent, remember to pop
             message_queues.pop(connection_id)
 
@@ -62,7 +65,11 @@ def handle_connect(from_addr, connection_id)->None:
         connections[connection_id] = list()
 
     # Add the address to the list on the connection
-    connections[connection_id].append(from_addr)
+    connection:list = connections[connection_id]
+    connection.append(from_addr)
+
+    print(f'Added addr <{from_addr}> to connection <{connection}>')
+    print(f'Full list of connections are now <{connections}>')
 
     print(f'Handled connect message from addr={from_addr} on ID={connection_id}')
     # Send the messages that have been queued from the remote side
@@ -71,27 +78,27 @@ def handle_connect(from_addr, connection_id)->None:
 def handle_message(sender_addr, connection_id:str, msg:bytes)->None:
     recipient_list:list = connections[connection_id]
 
-    print(f'Handle message initiated by sender_addr={sender_addr} for connection_id={connection_id}')
+    print(f'Handle message initiated by sender_addr=<{sender_addr}> for connection_id=<{connection_id}>')
 
     # There are other connected besides you
     if len(recipient_list) > 1:
         for addr in recipient_list:
             if addr != sender_addr:
+                print(f'\tSending message <{msg}> from <{sender_addr}> to <{addr}>')
                 conn:socket.socket = addr_to_conn[addr]
-                conn.send(msg)
+                conn.send(re_encode_msg(msg))
 
     else:
         # Check if queue exists
         if connection_id not in message_queues.keys():
             message_queues[connection_id] = Queue(maxsize=0)
         
-        print(f'Not enough connected to ID={connection_id} from sender_addr={sender_addr}')
+        print(f'Not enough connected to ID=<{connection_id}> from sender_addr=<{sender_addr}>')
         queue:Queue = message_queues[connection_id]
         queue.put((msg, sender_addr))
 
-
 if __name__ == '__main__':
-    print(f'Starting local listener on IP={SERVER_IP}, PORT={SERVER_PORT}')
+    print(f'Starting local listener on IP=<{SERVER_IP}>, PORT=<{SERVER_PORT}>')
     try:
         start_listening()
 

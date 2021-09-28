@@ -1,5 +1,6 @@
 import socket
-from protocol import encode_msg, decode_msg, MSG_TYPE_CONNECT, MSG_TYPE_MESSAGE
+from protocol import encode_msg, decode_msg, MSG_TYPE_CONNECT, MSG_TYPE_MESSAGE, extract_msg
+from tcp_util import recv_next_msg
 
 SERVER_PORT = 44556
 SERVER_IP = '127.0.0.1'
@@ -21,7 +22,7 @@ def connect()->socket.socket:
     # Send initial connect message
     print(f'Sending connect message to SERVER with requested connection ID={SYNC_ID}, MSG_TYPE={MSG_TYPE_CONNECT}')
     connect_msg:bytes = encode_msg(MSG_TYPE_CONNECT, SYNC_ID)
-    server_conn.sendall(connect_msg)
+    server_conn.send(connect_msg)
 
     return server_conn
 
@@ -30,13 +31,14 @@ def ping_pong(conn:socket.socket)->None:
         while True:
             # Start by sending a message
             msg:bytes = create_content_message()
-            conn.sendall(msg)
+            conn.send(msg)
             
             # Receive message from connection
-            data:bytes = conn.recv(1024)
+            data:bytes = recv_next_msg(conn)
             if data is None:
                 continue
-            decoded_msg:tuple = decode_msg(data)
+            extracted_msg:bytes = extract_msg(data)
+            decoded_msg:tuple = decode_msg(extracted_msg)
             print(f'Received messsage: {decoded_msg}')
 
     except KeyboardInterrupt:
