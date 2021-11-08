@@ -14,9 +14,11 @@ namespace Client_app
         public class TestHttpClient : HttpClient, IHttpClient
         {
             private bool _taskIsReady;
-            public TestHttpClient(bool taskIsReady)
+            private HttpStatusCode _statusCode;
+            public TestHttpClient(bool taskIsReady, HttpStatusCode statusCode)
             {
                 _taskIsReady = taskIsReady;
+                _statusCode = statusCode;
             }
             
             public HttpResponseMessage Send(HttpRequestMessage message)
@@ -34,14 +36,13 @@ namespace Client_app
                     string json = JsonConvert.SerializeObject(dict, Formatting.Indented);
 
                     responseMessage.Content = new StringContent(json);
-                    responseMessage.StatusCode = HttpStatusCode.OK;
                 }
                 else
                 {
                     responseMessage.Content = new StringContent("");
-                    responseMessage.StatusCode = HttpStatusCode.Forbidden;
                 }
-                
+
+                responseMessage.StatusCode = _statusCode;
                 return responseMessage;
             }
         }
@@ -49,7 +50,7 @@ namespace Client_app
         [Fact]
         public void SendGetRequest_TaskIsReady_RequestAnsweredWithTask()
         {
-            IHttpClient testHttpClient = new TestHttpClient(true);
+            IHttpClient testHttpClient = new TestHttpClient(true, HttpStatusCode.OK);
             TaskClient client = new TaskClient(testHttpClient);
 
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, "api/task/ready");
@@ -63,7 +64,7 @@ namespace Client_app
         [Fact]
         public void SendGetRequest_TaskIsNotReady_RequestAnsweredWithNull()
         {
-            IHttpClient testHttpClient = new TestHttpClient(false);
+            IHttpClient testHttpClient = new TestHttpClient(false, HttpStatusCode.Forbidden);
             TaskClient client = new TaskClient(testHttpClient);
 
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, "api/task/ready");
