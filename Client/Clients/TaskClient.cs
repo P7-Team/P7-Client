@@ -1,11 +1,14 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Client.Interfaces;
-using Client.Models;
 using Newtonsoft.Json;
+using Task = Client.Models.Task;
 
 namespace Client.Clients
 {
@@ -31,6 +34,27 @@ namespace Client.Clients
             }
             
             return null;
+        }
+
+        public async Task<bool> AddResult(long taskId, string resultFilePath)
+        {
+            MultipartFormDataContent content = new MultipartFormDataContent();
+            content.Add(new StringContent(taskId.ToString()), "id");
+
+            using (FileStream result = File.Open(resultFilePath, FileMode.Open))
+            {
+                byte[] buffer = new byte[result.Length];
+                await result.ReadAsync(buffer, 0, (int)result.Length);
+                
+                content.Add(new ByteArrayContent(buffer, 0, buffer.Length), "result");
+            }
+
+            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, "http://localhost:5000/api/task/complete");
+            message.Content = content;
+
+            HttpResponseMessage response = await _client.SendAsync(message);
+
+            return true;
         }
     }
 }
