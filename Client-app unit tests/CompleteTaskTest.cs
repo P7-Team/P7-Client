@@ -1,11 +1,8 @@
 using System;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using System.Security;
+using System.Runtime.InteropServices;
 using Client;
 using Client.Exceptions;
-using IronPython.Hosting;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -14,8 +11,9 @@ namespace Client_app
     public class CompleteTaskTest
     {
         private readonly ITestOutputHelper _testOutputHelper;
-        private string _pathToPython = "/usr/bin/python3";
-        private string _pathToDirectory;
+        private readonly string _pathToPython;
+        private readonly string _pathToDirectory;
+        private readonly string _separator = Path.DirectorySeparatorChar.ToString();
         
         public CompleteTaskTest(ITestOutputHelper testOutputHelper)
         {
@@ -23,7 +21,20 @@ namespace Client_app
             var currentDirectory = Directory.GetCurrentDirectory();
             var oneUp = Directory.GetParent(currentDirectory).ToString();
             var twoUp = Directory.GetParent(oneUp).ToString();
-            _pathToDirectory = Directory.GetParent(twoUp) + Path.DirectorySeparatorChar.ToString() + "CompleteTaskTestInputs" + Path.DirectorySeparatorChar.ToString();
+            _pathToDirectory = $"{Directory.GetParent(twoUp)}{_separator}CompleteTaskTestInputs{_separator}";
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                _pathToPython = "/usr/bin/python3";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                _pathToPython = "python3";
+            }
+            else
+            {
+                throw new Exception("Unsupported OS");
+            }
         }
 
         [Fact]
