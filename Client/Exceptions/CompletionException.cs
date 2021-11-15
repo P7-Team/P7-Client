@@ -6,7 +6,7 @@ namespace Client.Exceptions
     {
         public CompletionException(string message) : base(message)
         {
-        
+        // Intentional left empty...
         }
     }
 }
