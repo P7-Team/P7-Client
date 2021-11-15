@@ -14,7 +14,7 @@ namespace Client_app
     public class CompleteTaskTest
     {
         private readonly ITestOutputHelper _testOutputHelper;
-        private string _pathToPython = "/usr/bin/python3";
+        private string _pathToPython = "/usra/bin/python3";
         private string _pathToDirectory;
         
         public CompleteTaskTest(ITestOutputHelper testOutputHelper)
