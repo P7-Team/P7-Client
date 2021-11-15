@@ -14,6 +14,7 @@ namespace Client_app
         private readonly string _pathToPython;
         private readonly string _pathToDirectory;
         private readonly string _separator = Path.DirectorySeparatorChar.ToString();
+        private readonly bool _isWindows;
         
         public CompleteTaskTest(ITestOutputHelper testOutputHelper)
         {
@@ -25,10 +26,12 @@ namespace Client_app
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
+                _isWindows = false;
                 _pathToPython = "/usr/bin/python3";
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
+                _isWindows = true;
                 _pathToPython = "python3";
             }
             else
@@ -155,7 +158,8 @@ namespace Client_app
             
             completer.Run();
 
-            var expected = "This is line one\nThis is line two";
+            var expected = _isWindows ? "This is line one\r\nThis is line two" : "This is line one\nThis is line two";
+            
             var actual = completer.GetResult();
             
             Assert.Equal(expected, actual);
@@ -168,7 +172,7 @@ namespace Client_app
             
             completer.Run();
 
-            var expected = "This is line one\nThis is line two";
+            var expected = _isWindows ? "This is line one\r\nThis is line two" : "This is line one\nThis is line two";
             var actual = completer.GetResult();
             
             Assert.Equal(expected, actual);
