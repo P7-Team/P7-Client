@@ -6,16 +6,16 @@ using Client.Exceptions;
 
 namespace Client
 {
-    public class PythonTaskCompleter
+    public class InterpretedTaskCompleter
     {
-        private readonly string _pathToPython;
+        private readonly string _pathToInterpreter;
         private readonly string _sourceFileName;
         private readonly string _workingDirectory;
         private string _result;
 
-        public PythonTaskCompleter(string pathToPython, string workingDirectory, string sourceFileName)
+        public InterpretedTaskCompleter(string pathToInterpreter, string workingDirectory, string sourceFileName)
         {
-            _pathToPython = pathToPython;
+            _pathToInterpreter = pathToInterpreter;
             _workingDirectory = workingDirectory;
             _sourceFileName = sourceFileName;
         }
@@ -24,7 +24,7 @@ namespace Client
         {
             var start = new ProcessStartInfo
             {
-                FileName = _pathToPython,
+                FileName = _pathToInterpreter,
                 Arguments = $"\"{_sourceFileName}\"",
                 UseShellExecute = false,
                 CreateNoWindow = true,

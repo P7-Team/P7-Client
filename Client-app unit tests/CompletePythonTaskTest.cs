@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace Client_app
 {
-    public class CompleteTaskTest
+    public class CompletePythonTaskTest
     {
         private readonly ITestOutputHelper _testOutputHelper;
         private readonly string _pathToPython;
@@ -16,7 +16,7 @@ namespace Client_app
         private readonly string _separator = Path.DirectorySeparatorChar.ToString();
         private readonly bool _isWindows;
         
-        public CompleteTaskTest(ITestOutputHelper testOutputHelper)
+        public CompletePythonTaskTest(ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
             var currentDirectory = Directory.GetCurrentDirectory();
@@ -43,7 +43,7 @@ namespace Client_app
         [Fact]
         public void PathToPythonIsEmpty_CompletionExceptionThrown()
         {
-            var completer = new PythonTaskCompleter("", _pathToDirectory, "test1.py");
+            var completer = new InterpretedTaskCompleter("", _pathToDirectory, "test1.py");
             
             try
             {
@@ -60,7 +60,7 @@ namespace Client_app
         [Fact]
         public void PathToPythonIsNotEmptyButPointsToWrongFile_CompletionExceptionThrown()
         {
-            var completer = new PythonTaskCompleter("/home/index.html", _pathToDirectory, "test1.py");
+            var completer = new InterpretedTaskCompleter("/home/index.html", _pathToDirectory, "test1.py");
             
             try
             {
@@ -77,7 +77,7 @@ namespace Client_app
         [Fact]
         public void PathToPythonIsNotEmptyButPointsToDirectory_CompletionExceptionThrown()
         {
-            var completer = new PythonTaskCompleter("/home", _pathToDirectory, "test1.py");
+            var completer = new InterpretedTaskCompleter("/home", _pathToDirectory, "test1.py");
             
             try
             {
@@ -94,7 +94,7 @@ namespace Client_app
         [Fact]
         public void PathToSourceIsEmpty_ArgumentExceptionThrown()
         {
-            var completer = new PythonTaskCompleter(_pathToPython, "", "test1.py");
+            var completer = new InterpretedTaskCompleter(_pathToPython, "", "test1.py");
 
             try
             {
@@ -111,7 +111,7 @@ namespace Client_app
         [Fact]
         public void PathToSourceIsNotEmptyButWrong_ArgumentExceptionThrown()
         {
-            var completer = new PythonTaskCompleter(_pathToPython, "/", "test1.py");
+            var completer = new InterpretedTaskCompleter(_pathToPython, "/", "test1.py");
 
             try
             {
@@ -128,7 +128,7 @@ namespace Client_app
         [Fact]
         public void SourceDoesNotUseOtherInput_ResultIsOutput()
         {
-            var completer = new PythonTaskCompleter(_pathToPython, _pathToDirectory, "test1.py");
+            var completer = new InterpretedTaskCompleter(_pathToPython, _pathToDirectory, "test1.py");
             
             completer.Run();
 
@@ -141,7 +141,7 @@ namespace Client_app
         [Fact]
         public void SourceUsesInputFile_ResultIsOutput()
         {
-            var completer = new PythonTaskCompleter(_pathToPython, _pathToDirectory, "test2.py");
+            var completer = new InterpretedTaskCompleter(_pathToPython, _pathToDirectory, "test2.py");
             
             completer.Run();
 
@@ -154,7 +154,7 @@ namespace Client_app
         [Fact]
         public void MultiplePrints_ResultIsComposedOfMultipleLinesWithNewlines()
         {
-            var completer = new PythonTaskCompleter(_pathToPython, _pathToDirectory, "test3.py");
+            var completer = new InterpretedTaskCompleter(_pathToPython, _pathToDirectory, "test3.py");
             
             completer.Run();
 
@@ -168,7 +168,7 @@ namespace Client_app
         [Fact]
         public void NewlineInMiddleOfOutput_NewlineIsKept()
         {
-            var completer = new PythonTaskCompleter(_pathToPython, _pathToDirectory, "test4.py");
+            var completer = new InterpretedTaskCompleter(_pathToPython, _pathToDirectory, "test4.py");
             
             completer.Run();
 
@@ -181,7 +181,7 @@ namespace Client_app
         [Fact]
         public void NewlinesAtEndOfResult_NewlinesRemoved()
         {
-            var completer = new PythonTaskCompleter(_pathToPython, _pathToDirectory, "test5.py");
+            var completer = new InterpretedTaskCompleter(_pathToPython, _pathToDirectory, "test5.py");
             
             completer.Run();
 
@@ -194,7 +194,7 @@ namespace Client_app
         [Fact]
         public void ReturnsAtEndOfResult_ReturnsRemoved()
         {
-            var completer = new PythonTaskCompleter(_pathToPython, _pathToDirectory, "test6.py");
+            var completer = new InterpretedTaskCompleter(_pathToPython, _pathToDirectory, "test6.py");
             
             completer.Run();
 
@@ -207,7 +207,7 @@ namespace Client_app
         [Fact]
         public void ReturnsAndNewlinesAtEndOfResult_ReturnsAndNewlinesRemoved()
         {
-            var completer = new PythonTaskCompleter(_pathToPython, _pathToDirectory, "test7.py");
+            var completer = new InterpretedTaskCompleter(_pathToPython, _pathToDirectory, "test7.py");
             
             completer.Run();
 
