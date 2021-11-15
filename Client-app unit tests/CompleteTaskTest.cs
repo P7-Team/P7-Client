@@ -14,7 +14,7 @@ namespace Client_app
     public class CompleteTaskTest
     {
         private readonly ITestOutputHelper _testOutputHelper;
-        private string _pathToPython = "/usra/bin/python3";
+        private string _pathToPython = "/usr/bin/python3";
         private string _pathToDirectory;
         
         public CompleteTaskTest(ITestOutputHelper testOutputHelper)
@@ -23,7 +23,7 @@ namespace Client_app
             var currentDirectory = Directory.GetCurrentDirectory();
             var oneUp = Directory.GetParent(currentDirectory).ToString();
             var twoUp = Directory.GetParent(oneUp).ToString();
-            _pathToDirectory = Directory.GetParent(twoUp) + "/CompleteTaskTestInputs/";
+            _pathToDirectory = Directory.GetParent(twoUp) + Path.DirectorySeparatorChar.ToString() + "CompleteTaskTestInputs" + Path.DirectorySeparatorChar.ToString();
         }
 
         [Fact]
