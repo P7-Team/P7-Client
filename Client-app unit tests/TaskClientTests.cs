@@ -1,6 +1,10 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Client.Clients;
 using Client.Interfaces;
 using Client.Models;
@@ -54,11 +58,11 @@ namespace Client_app
             TaskClient client = new TaskClient(testHttpClient);
 
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, "api/task/ready");
-            
-            Task response = client.GetTask(requestMessage);
+
+            Client.Models.Task response = client.GetTask(requestMessage);
             
             Assert.NotNull(response);
-            Assert.IsType<Task>(response);
+            Assert.IsType<Client.Models.Task>(response);
         }
 
         [Fact]
@@ -69,9 +73,57 @@ namespace Client_app
 
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, "api/task/ready");
 
-            Task response = client.GetTask(requestMessage);
+            Client.Models.Task response = client.GetTask(requestMessage);
 
             Assert.Null(response);
+        }
+
+
+        /* Tests for SendCompletedTask  */
+        public class MockClient : IHttpClient
+        {
+            public HttpRequestMessage Request { get; set; }
+            public HttpResponseMessage Send(HttpRequestMessage message)
+            {
+                Request = message;
+                return new HttpResponseMessage();
+            }
+
+            public Task<HttpResponseMessage> SendAsync(HttpRequestMessage message)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
+
+        [Fact]
+        public void SendCompletedTask_CreatesRequestWithMultipartFormDataContentType()
+        {
+            MockClient httpClient = new MockClient();
+            TaskClient client = new TaskClient(httpClient);
+
+            CompletedTask completedTask = new CompletedTask(1, new MemoryStream());
+
+            client.SendCompletedTask(completedTask);
+
+            Assert.Equal("multipart/form-data", httpClient.Request.Content.Headers.ContentType.MediaType);
+        }
+
+        [Fact]
+        public async void SendCompletedTask_CreatesRequestContainingCompletedTaskData()
+        {
+            MockClient httpClient = new MockClient();
+            TaskClient client = new TaskClient(httpClient);
+
+            UnicodeEncoding uniEncoding = new UnicodeEncoding();
+            MemoryStream stream = new MemoryStream();
+            stream.Write(Encoding.UTF8.GetBytes("test"));
+
+            CompletedTask completedTask = new CompletedTask(1, stream);
+
+            client.SendCompletedTask(completedTask);
+
+            Assert.Contains("Content-Disposition: form-data; name=id", httpClient.Request.Content.ReadAsStringAsync().Result);
+            Assert.Contains("test", await httpClient.Request.Content.ReadAsStringAsync());
         }
     }
 }

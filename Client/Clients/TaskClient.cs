@@ -7,6 +7,8 @@ using System.Net.Sockets;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Client.Interfaces;
+using Client.Models;
+using Client.Services;
 using Newtonsoft.Json;
 using Task = Client.Models.Task;
 
@@ -32,7 +34,7 @@ namespace Client.Clients
 
                 return task;
             }
-            
+
             return null;
         }
 
@@ -45,7 +47,7 @@ namespace Client.Clients
             {
                 byte[] buffer = new byte[result.Length];
                 await result.ReadAsync(buffer, 0, (int)result.Length);
-                
+
                 content.Add(new ByteArrayContent(buffer, 0, buffer.Length), "result");
             }
 
@@ -55,6 +57,21 @@ namespace Client.Clients
             HttpResponseMessage response = await _client.SendAsync(message);
 
             return true;
+        }
+        
+        public void SendCompletedTask(CompletedTask completedTask)
+        {
+            Dictionary<string, string> formdata = new Dictionary<string, string>()
+            {
+                {"id", completedTask.Id.ToString() }
+            };
+            Dictionary<string, Stream> files = new Dictionary<string, Stream>()
+            {
+                { "result", completedTask.FileStream }
+            };
+
+            MultipartFormDataContent content = MultipartFormDataHelper.CreateContent(formdata, files);
+            _client.Send(new HttpRequestMessage() { Content = content });
         }
     }
 }
