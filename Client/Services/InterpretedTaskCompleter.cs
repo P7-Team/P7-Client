@@ -1,10 +1,9 @@
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using Client.Exceptions;
 
-namespace Client
+namespace Client.Services
 {
     public class InterpretedTaskCompleter
     {

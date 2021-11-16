@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Client;
 using Client.Exceptions;
+using Client.Services;
 using Xunit;
 using Xunit.Abstractions;
 
