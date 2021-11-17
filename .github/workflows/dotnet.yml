@@ -3,8 +3,7 @@ name: .NET
 on: push
 
 jobs:
-  build:
-
+  ubuntu-build:
     runs-on: ubuntu-latest
 
     steps:
@@ -13,6 +12,22 @@ jobs:
       uses: actions/setup-dotnet@v1.8.2
       with:
         # Optional SDK version to use. If not provided, will install global.json version when available. Examples: 2.2.104, 3.1, 3.1.x
+        dotnet-version: 3.1
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+  
+  windows-build:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .Net Core SDK
+      uses: actions/setup-dotnet@v1.8.2
+      with: 
         dotnet-version: 3.1
     - name: Restore dependencies
       run: dotnet restore

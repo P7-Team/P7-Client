@@ -15,7 +15,7 @@ namespace Client_app
 {
     public class TaskClientTests
     {
-        public class TestHttpClient : HttpClient, IHttpClient
+        private class TestHttpClient : IHttpClient
         {
             private bool _taskIsReady;
             private HttpStatusCode _statusCode;
