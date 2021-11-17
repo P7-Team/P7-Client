@@ -103,7 +103,7 @@ namespace Client_app
 
             CompletedTask completedTask = new CompletedTask(1, new MemoryStream());
 
-            client.SendCompletedTask(completedTask);
+            client.AddResult(completedTask);
 
             Assert.Equal("multipart/form-data", httpClient.Request.Content.Headers.ContentType.MediaType);
         }
@@ -114,13 +114,12 @@ namespace Client_app
             MockClient httpClient = new MockClient();
             TaskClient client = new TaskClient(httpClient);
 
-            UnicodeEncoding uniEncoding = new UnicodeEncoding();
             MemoryStream stream = new MemoryStream();
             stream.Write(Encoding.UTF8.GetBytes("test"));
 
             CompletedTask completedTask = new CompletedTask(1, stream);
 
-            client.SendCompletedTask(completedTask);
+            client.AddResult(completedTask);
 
             Assert.Contains("Content-Disposition: form-data; name=id", httpClient.Request.Content.ReadAsStringAsync().Result);
             Assert.Contains("test", await httpClient.Request.Content.ReadAsStringAsync());

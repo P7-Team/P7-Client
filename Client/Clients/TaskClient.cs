@@ -37,29 +37,8 @@ namespace Client.Clients
 
             return null;
         }
-
-        public async Task<bool> AddResult(long taskId, string resultFilePath)
-        {
-            MultipartFormDataContent content = new MultipartFormDataContent();
-            content.Add(new StringContent(taskId.ToString()), "id");
-
-            using (FileStream result = File.Open(resultFilePath, FileMode.Open))
-            {
-                byte[] buffer = new byte[result.Length];
-                await result.ReadAsync(buffer, 0, (int)result.Length);
-
-                content.Add(new ByteArrayContent(buffer, 0, buffer.Length), "result");
-            }
-
-            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, "http://localhost:5000/api/task/complete");
-            message.Content = content;
-
-            HttpResponseMessage response = await _client.SendAsync(message);
-
-            return true;
-        }
         
-        public void SendCompletedTask(CompletedTask completedTask)
+        public bool AddResult(CompletedTask completedTask)
         {
             Dictionary<string, string> formdata = new Dictionary<string, string>()
             {
@@ -71,7 +50,9 @@ namespace Client.Clients
             };
 
             MultipartFormDataContent content = MultipartFormDataHelper.CreateContent(formdata, files);
-            _client.Send(new HttpRequestMessage() { Content = content });
+            HttpResponseMessage res = _client.Send(new HttpRequestMessage() { Content = content });
+
+            return res.IsSuccessStatusCode;
         }
     }
 }
