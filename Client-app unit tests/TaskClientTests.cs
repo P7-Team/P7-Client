@@ -3,8 +3,6 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Client.Clients;
 using Client.Interfaces;
 using Client.Models;
@@ -59,10 +57,10 @@ namespace Client_app
 
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, "api/task/ready");
 
-            Client.Models.Task response = client.GetTask(requestMessage);
+            Task response = client.GetTask(requestMessage);
             
             Assert.NotNull(response);
-            Assert.IsType<Client.Models.Task>(response);
+            Assert.IsType<Task>(response);
         }
 
         [Fact]
@@ -73,7 +71,7 @@ namespace Client_app
 
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, "api/task/ready");
 
-            Client.Models.Task response = client.GetTask(requestMessage);
+            Task response = client.GetTask(requestMessage);
 
             Assert.Null(response);
         }
@@ -87,11 +85,6 @@ namespace Client_app
             {
                 Request = message;
                 return new HttpResponseMessage();
-            }
-
-            public Task<HttpResponseMessage> SendAsync(HttpRequestMessage message)
-            {
-                throw new System.NotImplementedException();
             }
         }
 
