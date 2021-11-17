@@ -11,15 +11,15 @@ namespace Client.Clients
 {
     public class TaskClient
     {
-        private IHttpClient _client;
-        public TaskClient(IHttpClient client)
+        private IHttpService _service;
+        public TaskClient(IHttpService service)
         {
-            _client = client;
+            _service = service;
         }
 
-        public Task GetTask(HttpRequestMessage message)
+        public Task GetTask()
         {
-            HttpResponseMessage response = _client.Send(message);
+            HttpResponseMessage response = _service.Get("/api/task/ready");
 
             if (response.IsSuccessStatusCode)
             {
