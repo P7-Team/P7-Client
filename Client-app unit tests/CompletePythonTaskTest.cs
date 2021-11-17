@@ -45,17 +45,11 @@ namespace Client_app
         public void PathToPythonIsEmpty_CompletionExceptionThrown()
         {
             var completer = new InterpretedTaskCompleter("", _pathToDirectory, "test1.py");
-            
-            try
+
+            Assert.Throws<CompletionException>(() =>
             {
                 completer.Run();
-                Assert.True(false);
-            }
-            catch (CompletionException e)
-            {
-                _testOutputHelper.WriteLine(e.Message);
-                Assert.True(true);
-            }
+            });
         }
         
         [Fact]
@@ -63,16 +57,10 @@ namespace Client_app
         {
             var completer = new InterpretedTaskCompleter("/home/index.html", _pathToDirectory, "test1.py");
             
-            try
+            Assert.Throws<CompletionException>(() =>
             {
                 completer.Run();
-                Assert.True(false);
-            }
-            catch (CompletionException e)
-            {
-                _testOutputHelper.WriteLine(e.Message);
-                Assert.True(true);
-            }
+            });
         }
         
         [Fact]
@@ -80,16 +68,10 @@ namespace Client_app
         {
             var completer = new InterpretedTaskCompleter("/home", _pathToDirectory, "test1.py");
             
-            try
+            Assert.Throws<CompletionException>(() =>
             {
                 completer.Run();
-                Assert.True(false);
-            }
-            catch (CompletionException e)
-            {
-                _testOutputHelper.WriteLine(e.Message);
-                Assert.True(true);
-            }
+            });
         }
 
         [Fact]
@@ -97,16 +79,10 @@ namespace Client_app
         {
             var completer = new InterpretedTaskCompleter(_pathToPython, "", "test1.py");
 
-            try
+            Assert.Throws<ArgumentException>(() =>
             {
                 completer.Run();
-                Assert.True(false);
-            }
-            catch (ArgumentException e)
-            {
-                _testOutputHelper.WriteLine(e.Message);
-                Assert.True(true);
-            }
+            });
         }
         
         [Fact]
@@ -114,16 +90,10 @@ namespace Client_app
         {
             var completer = new InterpretedTaskCompleter(_pathToPython, "/", "test1.py");
 
-            try
+            Assert.Throws<ArgumentException>(() =>
             {
                 completer.Run();
-                Assert.True(false);
-            }
-            catch (ArgumentException e)
-            {
-                _testOutputHelper.WriteLine(e.Message);
-                Assert.True(true);
-            }
+            });
         }
 
         [Fact]

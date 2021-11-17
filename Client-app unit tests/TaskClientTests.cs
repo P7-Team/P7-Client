@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -13,17 +14,22 @@ namespace Client_app
 {
     public class TaskClientTests
     {
-        private class TestHttpClient : IHttpClient
+        private class TestHttpService : IHttpService
         {
             private bool _taskIsReady;
             private HttpStatusCode _statusCode;
-            public TestHttpClient(bool taskIsReady, HttpStatusCode statusCode)
+            public TestHttpService(bool taskIsReady, HttpStatusCode statusCode)
             {
                 _taskIsReady = taskIsReady;
                 _statusCode = statusCode;
             }
             
             public HttpResponseMessage Send(HttpRequestMessage message)
+            {
+                throw new NotImplementedException();
+            }
+
+            public HttpResponseMessage Get(string uri)
             {
                 HttpResponseMessage responseMessage = new HttpResponseMessage();
 
@@ -47,17 +53,25 @@ namespace Client_app
                 responseMessage.StatusCode = _statusCode;
                 return responseMessage;
             }
+
+            public HttpResponseMessage Post(string uri, HttpContent content)
+            {
+                throw new NotImplementedException();
+            }
+
+            public HttpResponseMessage Delete(string uri)
+            {
+                throw new NotImplementedException();
+            }
         }
         
         [Fact]
         public void SendGetRequest_TaskIsReady_RequestAnsweredWithTask()
         {
-            IHttpClient testHttpClient = new TestHttpClient(true, HttpStatusCode.OK);
-            TaskClient client = new TaskClient(testHttpClient);
-
-            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, "api/task/ready");
-
-            Task response = client.GetTask(requestMessage);
+            IHttpService testHttpService = new TestHttpService(true, HttpStatusCode.OK);
+            TaskClient client = new TaskClient(testHttpService);
+            
+            Task response = client.GetTask();
             
             Assert.NotNull(response);
             Assert.IsType<Task>(response);
@@ -66,12 +80,10 @@ namespace Client_app
         [Fact]
         public void SendGetRequest_TaskIsNotReady_RequestAnsweredWithNull()
         {
-            IHttpClient testHttpClient = new TestHttpClient(false, HttpStatusCode.Forbidden);
-            TaskClient client = new TaskClient(testHttpClient);
+            IHttpService testHttpService = new TestHttpService(false, HttpStatusCode.Forbidden);
+            TaskClient client = new TaskClient(testHttpService);
 
-            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, "api/task/ready");
-
-            Task response = client.GetTask(requestMessage);
+            Task response = client.GetTask();
 
             Assert.Null(response);
         }
