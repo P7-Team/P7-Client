@@ -50,6 +50,7 @@ namespace Client.Clients
             };
 
             MultipartFormDataContent content = MultipartFormDataHelper.CreateContent(formdata, files);
+            // TODO: Refactor to use the new Post after merging
             HttpResponseMessage res = _client.Send(new HttpRequestMessage() { Content = content });
 
             return res.IsSuccessStatusCode;
