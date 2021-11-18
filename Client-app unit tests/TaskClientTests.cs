@@ -90,9 +90,25 @@ namespace Client_app
 
 
         /* Tests for SendCompletedTask  */
-        public class MockClient : IHttpClient
+        public class MockClient : IHttpService
         {
             public HttpRequestMessage Request { get; set; }
+
+            public HttpResponseMessage Delete(string uri)
+            {
+                throw new NotImplementedException();
+            }
+
+            public HttpResponseMessage Get(string uri)
+            {
+                throw new NotImplementedException();
+            }
+
+            public HttpResponseMessage Post(string uri, HttpContent content)
+            {
+                throw new NotImplementedException();
+            }
+
             public HttpResponseMessage Send(HttpRequestMessage message)
             {
                 Request = message;
