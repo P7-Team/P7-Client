@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using Client.Clients;
 using Client.Interfaces;
 using Client.Models;
@@ -84,6 +86,64 @@ namespace Client_app
             Task response = client.GetTask();
 
             Assert.Null(response);
+        }
+
+
+        /* Tests for SendCompletedTask  */
+        public class MockClient : IHttpService
+        {
+            public HttpRequestMessage Request { get; set; }
+
+            public HttpResponseMessage Delete(string uri)
+            {
+                throw new NotImplementedException();
+            }
+
+            public HttpResponseMessage Get(string uri)
+            {
+                throw new NotImplementedException();
+            }
+
+            public HttpResponseMessage Post(string uri, HttpContent content)
+            {
+                throw new NotImplementedException();
+            }
+
+            public HttpResponseMessage Send(HttpRequestMessage message)
+            {
+                Request = message;
+                return new HttpResponseMessage();
+            }
+        }
+
+        [Fact]
+        public void SendCompletedTask_CreatesRequestWithMultipartFormDataContentType()
+        {
+            MockClient httpClient = new MockClient();
+            TaskClient client = new TaskClient(httpClient);
+
+            CompletedTask completedTask = new CompletedTask(1, new MemoryStream());
+
+            client.AddResult(completedTask);
+
+            Assert.Equal("multipart/form-data", httpClient.Request.Content.Headers.ContentType.MediaType);
+        }
+
+        [Fact]
+        public async void SendCompletedTask_CreatesRequestContainingCompletedTaskData()
+        {
+            MockClient httpClient = new MockClient();
+            TaskClient client = new TaskClient(httpClient);
+
+            MemoryStream stream = new MemoryStream();
+            stream.Write(Encoding.UTF8.GetBytes("test"));
+
+            CompletedTask completedTask = new CompletedTask(1, stream);
+
+            client.AddResult(completedTask);
+
+            Assert.Contains("Content-Disposition: form-data; name=id", httpClient.Request.Content.ReadAsStringAsync().Result);
+            Assert.Contains("test", await httpClient.Request.Content.ReadAsStringAsync());
         }
     }
 }
