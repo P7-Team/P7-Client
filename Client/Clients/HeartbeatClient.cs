@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Text.Json.Serialization;
 using Client.Interfaces;
 using Client.Models;
-using Newtonsoft.Json;
+using Client.Services;
 using System.Text;
 
 
@@ -27,14 +27,13 @@ namespace Client.Clients
 
         private bool SendHeartbeat(string messageType)
         {
-            var message = new HttpRequestMessage(HttpMethod.Post, "api/HeartBeat");
-            
-            message.Content = new StringContent(
+         
+            HttpContent content = new StringContent(
                 "{\"MessageType\":\"#type#\"}".Replace("#type#", messageType),
                 Encoding.UTF8,
                 "application/json"); //Type of Content
 
-            HttpResponseMessage respone = _client.Send(message);
+            HttpResponseMessage respone = _client.Post("api/HeartBeat", content);
 
             if (respone.IsSuccessStatusCode)
             {
