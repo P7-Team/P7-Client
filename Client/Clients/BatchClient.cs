@@ -26,13 +26,12 @@ namespace Client.Clients
 
             Dictionary<string, Stream> files = new Dictionary<string, Stream>()
             {
-                {"executable", batch.Executable}
+                {"source", batch.Source.Data}
             };
 
             for (int i = 0; i < batch.Inputs.Count; i++)
             {
-                string inputName = "input" + (i+1); // to make sure the inputs are named from 1..n
-                files.Add(inputName, batch.Inputs[i]);
+                files.Add(batch.Inputs[i].Name, batch.Inputs[i].Data);
             }
 
             MultipartContent content = MultipartFormDataHelper.CreateContent(formdata, files);

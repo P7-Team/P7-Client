@@ -6,14 +6,16 @@ namespace Client.Models
     public class Batch
     {
         public string Id { get; set; }
-        public Stream Executable { get; set; }
-        public List<Stream> Inputs { get; set; }
+        public UserFile Source { get; set; }
+        public List<UserFile> Inputs { get; set; }
+        public string Language { get; set; }
 
-        public Batch(string id, Stream executable, List<Stream> inputs)
+        public Batch(string id, UserFile source, string language, List<UserFile> inputs)
         {
             Id = id;
-            Executable = executable;
+            Source = source;
             Inputs = inputs;
+            Language = language;
         }
     }
 }
