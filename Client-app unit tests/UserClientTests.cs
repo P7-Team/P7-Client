@@ -1,11 +1,8 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System.Security.Cryptography;
 using Client.Clients;
 using Client.Interfaces;
-using Client.Services;
-using Microsoft.VisualStudio.TestPlatform.Common;
 using Newtonsoft.Json;
 using Xunit;
 
