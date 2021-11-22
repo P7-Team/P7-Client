@@ -32,7 +32,7 @@ namespace Client.Clients
 
             HttpStatusCode statusOK = HttpStatusCode.OK; 
 
-            return response.StatusCode.Equals(statusOK)
+            return response.StatusCode.Equals(statusOK);
             
         }
 
