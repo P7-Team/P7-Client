@@ -32,14 +32,8 @@ namespace Client.Clients
 
             HttpStatusCode statusOK = HttpStatusCode.OK; 
 
-            if (respone.StatusCode.Equals(statusOK))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return response.StatusCode.Equals(statusOK)
+            
         }
 
         public bool SendHeartbeatWorking()
