@@ -2,10 +2,11 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using Client.Exceptions;
+using Client.Interfaces;
 
 namespace Client.Services
 {
-    public class InterpretedTaskCompleter
+    public class InterpretedTaskCompleter : IInterpretedTaskCompleter
     {
         private readonly string _pathToInterpreter;
         private readonly string _sourceFileName;

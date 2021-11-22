@@ -8,5 +8,7 @@ namespace Client.Interfaces
         HttpResponseMessage Get(string uri);
         HttpResponseMessage Post(string uri, HttpContent content);
         HttpResponseMessage Delete(string uri);
+
+        void SetToken(string token);
     }
 }

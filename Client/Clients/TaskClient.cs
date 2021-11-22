@@ -1,11 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Sockets;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using Client.Interfaces;
 using Client.Models;
 using Client.Services;
@@ -14,7 +9,7 @@ using Task = Client.Models.Task;
 
 namespace Client.Clients
 {
-    public class TaskClient
+    public class TaskClient : ITaskClient
     {
         private IHttpService _service;
         public TaskClient(IHttpService service)

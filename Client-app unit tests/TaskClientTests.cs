@@ -63,6 +63,11 @@ namespace Client_app
             {
                 throw new NotImplementedException();
             }
+
+            public void SetToken(string token)
+            {
+                throw new NotImplementedException();
+            }
         }
         
         [Fact]
@@ -113,6 +118,11 @@ namespace Client_app
             {
                 Request = message;
                 return new HttpResponseMessage();
+            }
+
+            public void SetToken(string token)
+            {
+                throw new NotImplementedException();
             }
         }
 
