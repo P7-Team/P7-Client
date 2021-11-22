@@ -3,8 +3,8 @@
 public class PathHelper
 {
     private const char EXTENSION_SEPERATOR = '.';
-    
-    public static string ExtractFileNameFromPath(string absolutePath, bool removeFileExtension=false)
+
+    public static string ExtractFileNameFromPath(string absolutePath, bool removeFileExtension = false)
     {
         char seperator = Path.DirectorySeparatorChar;
         int filenameBeginIndex = absolutePath.LastIndexOf(seperator) + 1;
@@ -15,9 +15,8 @@ public class PathHelper
             filenameBeginIndex < extLastIdx) // Only if last '.' is after index where filename begins
         {
             filenameEndIndex = extLastIdx;
-            
         }
-            
+
         return absolutePath[filenameBeginIndex..filenameEndIndex];
     }
 }

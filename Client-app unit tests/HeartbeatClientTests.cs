@@ -65,6 +65,11 @@ namespace Client_app
             {
                 throw new NotImplementedException();
             }
+
+            public void SetToken(string token)
+            {
+                throw new NotImplementedException();
+            }
         }
 
        

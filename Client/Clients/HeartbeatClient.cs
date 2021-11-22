@@ -7,7 +7,7 @@ using System.Text;
 namespace Client.Clients
 {
      
-    public class HeartbeatClient
+    public class HeartbeatClient : IHeartbeatController
     {
 
 

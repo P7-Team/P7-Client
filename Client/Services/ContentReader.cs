@@ -7,6 +7,7 @@ namespace Client.Services
     public class ContentReader
     {
         private const int BUFFER_SIZE = 512;
+
         public static string ReadStreamContent(Stream contentStream)
         {
             return ReadStreamContent(contentStream, Encoding.UTF8);

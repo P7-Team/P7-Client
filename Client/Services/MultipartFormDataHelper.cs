@@ -6,7 +6,8 @@ namespace Client.Services
 {
     public class MultipartFormDataHelper
     {
-        public static MultipartFormDataContent CreateContent(IDictionary<string, string> formdata, IDictionary<string, Stream> files)
+        public static MultipartFormDataContent CreateContent(IDictionary<string, string> formdata,
+            IDictionary<string, Stream> files)
         {
             MultipartFormDataContent content = new MultipartFormDataContent();
 
@@ -18,10 +19,11 @@ namespace Client.Services
                 file.Value.Position = 0;
                 long streamLength = file.Value.Length;
                 byte[] buffer = new byte[streamLength];
-                file.Value.Read(buffer, 0, (int)streamLength);
+                file.Value.Read(buffer, 0, (int) streamLength);
 
                 content.Add(new ByteArrayContent(buffer, 0, buffer.Length), file.Key, file.Key);
             }
+
             return content;
         }
     }
