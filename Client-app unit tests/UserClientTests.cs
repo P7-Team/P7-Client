@@ -74,25 +74,20 @@ namespace Client_app
     public class UserClientTests
     {
         [Fact]
-        public void LoginUser_Returns_TokenUpdated()
+        public void LoginUser_Can_Login_Returns_Token()
         {
             UserClient userClient = new UserClient(new HttpClientTester());
-            userClient.LoginUser("username", "password");
-            Assert.NotEmpty(userClient.Token);
+            string username = "username";
+            string password = "password";
+            // As the token in the test implementation is equals to username+password, this check will suffice.
+            Assert.True(userClient.LoginUser(username, password)==username+password);
         }
 
         [Fact]
-        public void LoginUser_Can_Login_Returns_True()
+        public void LoginUser_Cannot_Login_Returns_NoToken()
         {
             UserClient userClient = new UserClient(new HttpClientTester());
-            Assert.True(userClient.LoginUser("username", "password"));
-        }
-
-        [Fact]
-        public void LoginUser_Cannot_Login_Returns_False()
-        {
-            UserClient userClient = new UserClient(new HttpClientTester());
-            Assert.False(userClient.LoginUser("username", "SomeWrongPassword"));
+            Assert.True(userClient.LoginUser("username", "SomeWrongPassword")=="");
         }
 
         [Fact]

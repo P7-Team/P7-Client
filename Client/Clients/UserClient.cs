@@ -10,30 +10,27 @@ namespace Client.Clients
     public class UserClient
     {
         private IHttpService _httpService;
-        public string Token { get; private set; }
+
 
         public UserClient(IHttpService httpService)
         {
-            Token = "";
             _httpService = httpService;
         }
 
 
         public bool CreateUser(string username, string password)
         {
-            HttpContent content = new StringContent(UserToJson(username,password));
+            HttpContent content = new StringContent(UserToJson(username, password));
             HttpResponseMessage httpResponseMessage = _httpService.Post("/user/signup", content);
             return httpResponseMessage.IsSuccessStatusCode;
         }
 
-        public bool LoginUser(string username, string password)
+        public string LoginUser(string username, string password)
         {
-            HttpContent content = new StringContent(UserToJson(username,password));
+            HttpContent content = new StringContent(UserToJson(username, password));
             HttpResponseMessage httpResponseMessage = _httpService.Post("/user/login", content);
 
-            if (!httpResponseMessage.IsSuccessStatusCode) return false;
-            Token = httpResponseMessage.Content.ReadAsStringAsync().Result;
-            return true;
+            return !httpResponseMessage.IsSuccessStatusCode ? "" : httpResponseMessage.Content.ReadAsStringAsync().Result;
         }
 
         private string UserToJson(string username, string password)
