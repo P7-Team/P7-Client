@@ -28,7 +28,7 @@ namespace Client.Clients
                 Encoding.UTF8,
                 "application/json"); //Type of Content
 
-            HttpResponseMessage respone = _client.Post("api/HeartBeat", content);
+            HttpResponseMessage response = _client.Post("api/HeartBeat", content);
 
             HttpStatusCode statusOK = HttpStatusCode.OK; 
 
