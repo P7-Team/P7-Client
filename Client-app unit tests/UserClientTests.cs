@@ -42,7 +42,7 @@ namespace Client_app
             {
                 if (username != dictionary["username"] ||
                     !BCrypt.Net.BCrypt.Verify(dictionary["password"], hashedPassword))
-                    return new HttpResponseMessage(HttpStatusCode.BadRequest);
+                    return new HttpResponseMessage(HttpStatusCode.NotFound);
 
                 responseMessage.Content =
                     new StringContent(dictionary["username"] + dictionary["password"]);
@@ -62,7 +62,7 @@ namespace Client_app
                 return responseMessage;
             }
 
-            return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
         }
 
         public HttpResponseMessage Delete(string uri)
@@ -82,28 +82,28 @@ namespace Client_app
         }
 
         [Fact]
-        public void LoginUser_Returns_True()
+        public void LoginUser_Can_Login_Returns_True()
         {
             UserClient userClient = new UserClient(new HttpClientTester());
             Assert.True(userClient.LoginUser("username", "password"));
         }
 
         [Fact]
-        public void LoginUser_Returns_False()
+        public void LoginUser_Cannot_Login_Returns_False()
         {
             UserClient userClient = new UserClient(new HttpClientTester());
             Assert.False(userClient.LoginUser("username", "SomeWrongPassword"));
         }
 
         [Fact]
-        public void CreateUser_Returns_True()
+        public void CreateUser_Can_Create_User_Returns_True()
         {
             UserClient userClient = new UserClient(new HttpClientTester());
             Assert.True(userClient.CreateUser("UniqueUsername", "SomeWrongPassword"));
         }
 
         [Fact]
-        public void CreateUser_Returns_False()
+        public void CreateUser_Cannot_Create_User_Returns_False()
         {
             UserClient userClient = new UserClient(new HttpClientTester());
             Assert.False(userClient.CreateUser("GenericUsername", "SomeWrongPassword"));

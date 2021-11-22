@@ -7,10 +7,8 @@ using Newtonsoft.Json;
 
 namespace Client.Clients
 {
-    public class UserClient
+    public class UserClient : IUserClient
     {
-        private string Password { get; set; }
-        private string _userName;
         private IHttpService _httpService;
         public string Token { get; private set; }
 
@@ -20,25 +18,17 @@ namespace Client.Clients
             _httpService = httpService;
         }
 
-        private void SetPassword(string password)
-        {
-            Password = password;
-        }
 
         public bool CreateUser(string username, string password)
         {
-            SetPassword(password);
-            _userName = username;
-            HttpContent content = new StringContent(UserToJson());
+            HttpContent content = new StringContent(UserToJson(username,password));
             HttpResponseMessage httpResponseMessage = _httpService.Post("/user/signup", content);
             return httpResponseMessage.IsSuccessStatusCode;
         }
 
         public bool LoginUser(string username, string password)
         {
-            Password = password;
-            _userName = username;
-            HttpContent content = new StringContent(UserToJson());
+            HttpContent content = new StringContent(UserToJson(username,password));
             HttpResponseMessage httpResponseMessage = _httpService.Post("/user/login", content);
 
             if (!httpResponseMessage.IsSuccessStatusCode) return false;
@@ -46,14 +36,14 @@ namespace Client.Clients
             return true;
         }
 
-        private string UserToJson()
+        private string UserToJson(string username, string password)
         {
             Dictionary<string, string> dict;
 
             dict = new Dictionary<string, string>()
             {
-                {"username", _userName},
-                {"password", Password}
+                {"username", username},
+                {"password", password}
             };
 
 
