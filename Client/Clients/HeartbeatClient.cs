@@ -1,11 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Sockets;
-using System.Text.Json.Serialization;
 using Client.Interfaces;
-using Client.Models;
-using Client.Services;
 using System.Text;
 
 
@@ -35,7 +30,9 @@ namespace Client.Clients
 
             HttpResponseMessage respone = _client.Post("api/HeartBeat", content);
 
-            if (respone.IsSuccessStatusCode)
+            HttpStatusCode statusOK = HttpStatusCode.OK; 
+
+            if (respone.StatusCode.Equals(statusOK))
             {
                 return true;
             }

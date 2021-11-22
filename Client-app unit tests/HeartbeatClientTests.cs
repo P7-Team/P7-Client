@@ -1,34 +1,28 @@
 ﻿using System;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using Client.Clients;
 using Client.Interfaces;
-using Client.Models;
 using Newtonsoft.Json;
 using Xunit;
-using System.Net.Http.Headers;
-using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
-using Moq;
-using Moq.Protected;
-
 
 namespace Client_app
 {
     public class HeartbeatClientTests 
     {
         
-        private class testHttpService : IHttpService
+        private class TestHttpService : IHttpService
         {
+            private readonly bool _connection;
             private HttpStatusCode _statuscode;
-            public testHttpService()
+            private readonly HttpResponseMessage _responeMessage = new HttpResponseMessage();
+
+            public TestHttpService(bool isThereAConnection)
             {
+                _connection = isThereAConnection;
                 _statuscode = HttpStatusCode.BadRequest;
+                _responeMessage.StatusCode = _statuscode;
             }
             public HttpResponseMessage Send(HttpRequestMessage message)
             {
@@ -40,23 +34,32 @@ namespace Client_app
             }
             public HttpResponseMessage Post(string uri, HttpContent content)
             {
-                HttpResponseMessage responeMessage = new HttpResponseMessage();
-                Dictionary<string, string> dictContent = JsonConvert.DeserializeObject<Dictionary<string, string>>(content.ReadAsStringAsync().Result);
-
-                string MessageType = "";
-
-                dictContent.TryGetValue("MessageType", out MessageType);
-
-                if ())
+                if (_connection == true)
                 {
-                    ;
+                    Dictionary<string, string> dictContent = JsonConvert.DeserializeObject<Dictionary<string, string>>(content.ReadAsStringAsync().Result);
+                    string found;
+
+                    if (dictContent.TryGetValue("MessageType", out found) && (found == "Working" | found == "Done" | found == "ShuttingDown"))
+                    {
+                        _statuscode = HttpStatusCode.OK;
+                    }
+                    else if (dictContent.Count == 0)
+                    {
+                        _statuscode = HttpStatusCode.NoContent;
+                    }
+                    else
+                    {
+                        _statuscode = HttpStatusCode.BadRequest;
+                    }
+
+                    _responeMessage.StatusCode = _statuscode;
+                    return _responeMessage;
                 }
                 else
                 {
-                    ;
+                    _responeMessage.StatusCode = HttpStatusCode.ServiceUnavailable;
+                    return _responeMessage;
                 }
-
-                return responeMessage;
             }
             public HttpResponseMessage Delete(string uri)
             {
@@ -64,21 +67,77 @@ namespace Client_app
             }
         }
 
-        //TODO - TEST: Recieve OK from method Working, Done, ShuttingDown
+       
         [Fact]
-        public void TestHearbeatRecieveOK()
+        public void TestHearbeatPostDoneRecieveOK()
         {
-        
+            IHttpService testHttpService = new TestHttpService(true);
+            HeartbeatClient testHeartbeatClient = new HeartbeatClient(testHttpService);
 
+            bool response;
+
+            response = testHeartbeatClient.SendHeartbeatDone();
+            Assert.True(response);
         }
 
-        //TODO - TEST: Received Error for sending nonsense
         [Fact]
-        public void TestHearbeatSend()
+        public void TestHearbeatPostShuttingDownRecieveOK()
         {
-       
-            Assert.Equal(2, 2);
+            IHttpService testHttpService = new TestHttpService(true);
+            HeartbeatClient testHeartbeatClient = new HeartbeatClient(testHttpService);
 
+            bool response;
+
+            response = testHeartbeatClient.SendHeartbeatShuttingDown();
+            Assert.True(response);
+        }
+
+        [Fact]
+        public void TestHearbeatPostWorkingRecieveOK()
+        {
+            IHttpService testHttpService = new TestHttpService(true);
+            HeartbeatClient testHeartbeatClient = new HeartbeatClient(testHttpService);
+
+            bool response;
+
+            response = testHeartbeatClient.SendHeartbeatWorking();
+            Assert.True(response);
+        }
+
+        [Fact]
+        public void TestHeartbeatPostBadConnectionDone()
+        {
+            IHttpService testHttpService = new TestHttpService(false);
+            HeartbeatClient testHeartbeatClient = new HeartbeatClient(testHttpService);
+
+            bool response;
+
+            response = testHeartbeatClient.SendHeartbeatWorking();
+            Assert.False(response);
+        }
+
+        [Fact]
+        public void TestHeartbeatBadConnectionShuttingDown()
+        {
+            IHttpService testHttpService = new TestHttpService(false);
+            HeartbeatClient testHeartbeatClient = new HeartbeatClient(testHttpService);
+
+            bool response;
+
+            response = testHeartbeatClient.SendHeartbeatShuttingDown();
+            Assert.False(response);
+        }
+
+        [Fact]
+        public void TestHeartbeatBadConnectionWorking()
+        {
+            IHttpService testHttpService = new TestHttpService(false);
+            HeartbeatClient testHeartbeatClient = new HeartbeatClient(testHttpService);
+
+            bool response;
+
+            response = testHeartbeatClient.SendHeartbeatWorking();
+            Assert.False(response);
         }
     }
 }
