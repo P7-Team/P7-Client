@@ -7,7 +7,7 @@ using Client.Services;
 
 namespace Client.Clients
 {
-    public class BatchClient
+    public class BatchClient : IBatchClient
     {
 
         private IHttpService _service;
@@ -21,7 +21,8 @@ namespace Client.Clients
         {
             Dictionary<string, string> formdata = new Dictionary<string, string>()
             {
-                {"id", batch.Id}
+                {"id", batch.Id},
+                {"language", batch.Language}
             };
 
             Dictionary<string, Stream> files = new Dictionary<string, Stream>()
@@ -32,6 +33,8 @@ namespace Client.Clients
             for (int i = 0; i < batch.Inputs.Count; i++)
             {
                 files.Add(batch.Inputs[i].Name, batch.Inputs[i].Data);
+                string encoding = "encoding" + batch.Inputs[i].Name;
+                formdata.Add(encoding, batch.Inputs[i].Enc.BodyName);
             }
 
             MultipartContent content = MultipartFormDataHelper.CreateContent(formdata, files);
