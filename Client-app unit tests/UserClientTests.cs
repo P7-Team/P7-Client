@@ -91,7 +91,7 @@ namespace Client_app
         public void LoginUser_Cannot_Login_Returns_NoToken()
         {
             UserClient userClient = new UserClient(new HttpClientTester());
-            Assert.True(userClient.LoginUser("username", "SomeWrongPassword")=="");
+            Assert.Empty(userClient.LoginUser("username", "SomeWrongPassword"));
         }
 
         [Fact]
