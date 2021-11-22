@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace Client.Clients
 {
-    public class UserClient : IUserClient
+    public class UserClient
     {
         private IHttpService _httpService;
         public string Token { get; private set; }
