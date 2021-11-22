@@ -79,8 +79,12 @@ namespace Client_app
             UserClient userClient = new UserClient(new HttpClientTester());
             string username = "username";
             string password = "password";
+            string expectedToken = username + password;
             // As the token in the test implementation is equals to username+password, this check will suffice.
-            Assert.True(userClient.LoginUser(username, password)==username+password);
+            
+            string actualToken = userClient.LoginUser(username, password);
+            
+            Assert.Equal(expectedToken, actualToken);
         }
 
         [Fact]
