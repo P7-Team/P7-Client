@@ -14,15 +14,23 @@ namespace Client.Services
         private const string WorkingDirectory = "WorkingDirectory";
         private Dictionary<string, string> _config = new Dictionary<string, string>();
 
+        /// <summary>
+        /// Returns the key-value paris of the config file as a dictionary.
+        /// If no config exists, this will be added.
+        /// </summary>
+        /// <returns></returns>
         public Dictionary<string, string> GetConfig()
         {
-            Console.WriteLine(ConfigPath);
-            OpenConfig();
+            OpenOrCreateConfig();
 
             return _config;
         }
 
-        private void OpenConfig()
+        /// <summary>
+        /// Opens or creates the config file.
+        /// </summary>
+        /// <exception cref="Exception">Throws an exception if the file exists, but do not contain the required fields.</exception>
+        private void OpenOrCreateConfig()
         {
             if (File.Exists(ConfigPath))
             {
@@ -47,6 +55,9 @@ namespace Client.Services
             }
         }
 
+        /// <summary>
+        /// Writes the required fields to the dictionary.
+        /// </summary>
         private void WriteConfig()
         {
             Dictionary<string, string> template = new Dictionary<string, string>();
