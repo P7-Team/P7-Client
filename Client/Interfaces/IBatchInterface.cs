@@ -1,10 +1,11 @@
-using System.Collections;
+using System.Collections.Generic;
+using Client.Models;
 
 namespace Client.Interfaces
 {
     public interface IBatchInterface
     {
-        public IEnumerable GetBatchStatus();
+        public IEnumerable<Batch> GetBatchStatus();
 
         public bool GetResult();
     }
