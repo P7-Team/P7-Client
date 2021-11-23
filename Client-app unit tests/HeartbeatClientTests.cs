@@ -34,12 +34,12 @@ namespace Client_app
             }
             public HttpResponseMessage Post(string uri, HttpContent content)
             {
-                if (_connection == true)
+                if (_connection)
                 {
                     Dictionary<string, string> dictContent = JsonConvert.DeserializeObject<Dictionary<string, string>>(content.ReadAsStringAsync().Result);
                     string found;
 
-                    if (dictContent.TryGetValue("MessageType", out found) && (found == "Working" | found == "Done" | found == "ShuttingDown"))
+                    if (dictContent.TryGetValue("status", out found) && (found == "Working" | found == "Done" | found == "ShuttingDown"))
                     {
                         _statuscode = HttpStatusCode.OK;
                     }

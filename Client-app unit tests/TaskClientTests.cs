@@ -7,6 +7,7 @@ using System.Text;
 using Client.Clients;
 using Client.Interfaces;
 using Client.Models;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Newtonsoft.Json;
 using Xunit;
 
@@ -111,7 +112,9 @@ namespace Client_app
 
             public HttpResponseMessage Post(string uri, HttpContent content)
             {
-                throw new NotImplementedException();
+                Request = new HttpRequestMessage();
+                Request.Content = content;
+                return new HttpResponseMessage(HttpStatusCode.Accepted);
             }
 
             public HttpResponseMessage Send(HttpRequestMessage message)
