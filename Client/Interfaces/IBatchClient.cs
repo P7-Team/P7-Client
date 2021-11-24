@@ -5,7 +5,7 @@ namespace Client.Interfaces
 {
     public interface IBatchClient
     {
-        bool AddBatch(Batch batch);
+        public bool AddBatch(Batch batch);
         
         public IEnumerable<Batch> GetBatchStatus();
 
