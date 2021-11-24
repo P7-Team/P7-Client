@@ -11,5 +11,10 @@ namespace Client.Models
             _source = source;
             _input = input;
         }
+
+        public string getSource()
+        {
+            return _source;
+        }
     }
 }
