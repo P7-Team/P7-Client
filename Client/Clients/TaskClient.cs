@@ -41,7 +41,7 @@ namespace Client.Clients
         }
 
         /// <summary>
-        /// Converts a completed task to multipartFormDataContent. And posts it to the webservice
+        /// Converts a completed task to multipartFormDataContent and posts it to the webservice
         /// </summary>
         /// <param name="completedTask"></param>
         /// <returns>Returns the status of the request.</returns>
