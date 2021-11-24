@@ -1,4 +1,5 @@
 ﻿using System;
+using Client.Clients;
 
 namespace Client
 {
@@ -6,7 +7,8 @@ namespace Client
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            //BatchClient bob = new BatchClient();
+            //bob.Getresult();
         }
     }
 }
