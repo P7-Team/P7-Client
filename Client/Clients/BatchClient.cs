@@ -39,14 +39,21 @@ namespace Client.Clients
 
         public List<BatchStatus> GetBatchStatus()
         {
-            // send get to http  /batch/status:  
-            HttpResponseMessage response = _service.Get("/batch/status");
+            // send get to http/batch/status:  
+            HttpResponseMessage response = _service.Get("http://localhost:5000/api/batch/status");
 
             //  If resice a success resonse 
             if (response.IsSuccessStatusCode)
             {
-                //modetager en list af BatchStatus 
-                return BatchStatuslist = JsonConvert.DeserializeObject<List<BatchStatus>>(response.Content.ReadAsStringAsync().Result);
+                try
+                {
+                    BatchStatuslist = JsonConvert.DeserializeObject<List<BatchStatus>>(response.Content.ReadAsStringAsync().Result);
+                }
+                catch (ArgumentNullException e)
+                {
+                    Console.WriteLine(".something wrong with BatchStatuslist ", e);
+                }
+                return BatchStatuslist;
             }
             else
             {
@@ -68,6 +75,7 @@ namespace Client.Clients
             {
                 foreach (var Batchstatus in Result)
                 {
+
                     if (Batchstatus.Finished)
                     {
                         int id = Batchstatus.BatchID;
@@ -75,18 +83,16 @@ namespace Client.Clients
                         int bytesRead = 0; 
 
                         string pathToBacth = "/batch/result/" + id + ":";
-                        HttpResponseMessage response = _service.Get(pathToBacth);
+                        HttpResponseMessage response = _service.Get("http://localhost:5000/api/batch/result");
 
                         if (response.IsSuccessStatusCode)
                         {
                             do {
-                                // Dictionary<string, string>(), files)
-                                // Stream binaryString = _service.Get(pathToBacth);
-                                // ContentReader readrespon = new ContentReader(binaryString);
-                                // Console.WriteLine(readrespon);
-                                // TODO make some new logi for this 
-                                // start make manu call
-                            } while (bytesRead > 0);
+                                // TODO insert stream; 
+                                Console.WriteLine(response);
+                                // TODO make some new logi for this; 
+                                // start make manu call;
+                        } while (bytesRead > 0);
                         }
 
                     }
