@@ -119,8 +119,7 @@ namespace Client_app
 
             public HttpResponseMessage Send(HttpRequestMessage message)
             {
-                Request = message;
-                return new HttpResponseMessage();
+                throw new NotImplementedException();
             }
 
             public void SetToken(string token)
