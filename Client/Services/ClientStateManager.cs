@@ -12,7 +12,6 @@ using Client.Models;
 namespace Client.Services
 {
     // TODO sync working status.
-    // TODO Swap BatchDownloaderClient with newest implementation after merge.
 
     enum Status
     {
@@ -77,6 +76,7 @@ namespace Client.Services
                 return;
             }
 
+            // TODO: Should be a list of batch statuses, not a list of batches
             List<Batch> batches = (List<Batch>) _batchClient.GetBatchStatus();
             // TODO handle downloaded batches.
             if (batches.Count > 0)
