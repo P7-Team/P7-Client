@@ -33,7 +33,6 @@ namespace Client.Clients
             HttpResponseMessage response = _client.Post("api/HeartBeat", content);
 
             return response.StatusCode.Equals(HttpStatusCode.OK);
-            
         }
 
         /// <summary>
