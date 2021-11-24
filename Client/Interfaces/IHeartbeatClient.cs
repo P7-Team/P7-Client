@@ -1,6 +1,6 @@
 namespace Client.Interfaces
 {
-    public interface IHeartbeatController
+    public interface IHeartbeatClient
     {
         public bool SendHeartbeatWorking();
 

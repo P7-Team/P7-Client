@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Client.Exceptions;
 using Client.Interfaces;
 using Newtonsoft.Json;
 
@@ -9,10 +10,18 @@ namespace Client.Services
 {
     public class ConfigManager : IConfigManager
     {
-        private static readonly string ConfigPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "config.json";
-        private const string InterpreterPath = "InterpreterPath";
-        private const string WorkingDirectory = "WorkingDirectory";
-        private Dictionary<string, string> _config = new Dictionary<string, string>();
+        private readonly string _configPath;
+        private readonly string _interpreterPath;
+        private readonly string _workingDirectory;
+        private Dictionary<string, string> _config;
+
+        public ConfigManager()
+        {
+            _configPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "config.json";
+            _interpreterPath = "InterpreterPath";
+            _workingDirectory = "WorkingDirectory";
+            _config = new Dictionary<string, string>();
+        }
 
         /// <summary>
         /// Returns the key-value paris of the config file as a dictionary.
@@ -29,12 +38,12 @@ namespace Client.Services
         /// <summary>
         /// Opens or creates the config file.
         /// </summary>
-        /// <exception cref="Exception">Throws an exception if the file exists, but do not contain the required fields.</exception>
+        /// <exception cref="ConfigException">Throws an exception if the file exists, but do not contain the required fields.</exception>
         private void OpenOrCreateConfig()
         {
-            if (File.Exists(ConfigPath))
+            if (File.Exists(_configPath))
             {
-                FileStream file = File.Open(ConfigPath, FileMode.OpenOrCreate);
+                FileStream file = File.Open(_configPath, FileMode.OpenOrCreate);
                 string fileInput = file.ToString();
                 file.Close();
                 if (fileInput == null)
@@ -42,11 +51,11 @@ namespace Client.Services
                     WriteConfig();
                 }
 
-                _config = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(ConfigPath));
-                if (_config.ContainsKey(InterpreterPath) && _config.ContainsKey(WorkingDirectory) &&
-                    (_config[InterpreterPath] == "" || _config[WorkingDirectory] == ""))
+                _config = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(_configPath));
+                if (_config.ContainsKey(_interpreterPath) && _config.ContainsKey(_workingDirectory) &&
+                    (_config[_interpreterPath] == "" || _config[_workingDirectory] == ""))
                 {
-                    throw new Exception("One or more fields of the config have not been populated");
+                    throw new ConfigException("One or more fields of the config have not been populated");
                 }
             }
             else
@@ -63,9 +72,9 @@ namespace Client.Services
             Dictionary<string, string> template = new Dictionary<string, string>();
             template["InterpreterPath"] = "";
             template["WorkingDirectory"] = "";
-            FileStream fileStream = File.Create(ConfigPath);
+            FileStream fileStream = File.Create(_configPath);
             fileStream.Close();
-            File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(template));
+            File.WriteAllText(_configPath, JsonConvert.SerializeObject(template));
         }
     }
 }

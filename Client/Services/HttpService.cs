@@ -9,8 +9,7 @@ namespace Client.Services
     public class HttpService : IHttpService
     {
         private readonly HttpClient _client;
-
-        private string _ip = "";
+        private readonly string _ip;
 
         public HttpService(string ip, string token = "")
         {

@@ -7,7 +7,7 @@ using System.Text;
 namespace Client.Clients
 {
      
-    public class HeartbeatClient : IHeartbeatController
+    public class HeartbeatClient : IHeartbeatClient
     {
 
 
@@ -32,9 +32,7 @@ namespace Client.Clients
 
             HttpResponseMessage response = _client.Post("api/HeartBeat", content);
 
-            HttpStatusCode statusOK = HttpStatusCode.OK; 
-
-            return response.StatusCode.Equals(statusOK);
+            return response.StatusCode.Equals(HttpStatusCode.OK);
             
         }
 

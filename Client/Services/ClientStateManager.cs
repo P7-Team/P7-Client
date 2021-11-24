@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using Client.Clients;
@@ -23,29 +24,29 @@ namespace Client.Services
     public class ClientStateManager
     {
         private Status _status;
+        private readonly IHeartbeatClient _heartbeatClient;
         private readonly ITaskClient _taskClient;
-        private readonly IHeartbeatController _heartbeatController;
+        private readonly IBatchClient _batchClient;
         private Thread _heartBeatThread;
         private Thread _taskThread;
         private Thread _batchThread;
         private const int HeartbeatInMinutes = 5;
-        private const int ThreadTimeout = 100 * 60 * HeartbeatInMinutes;
+        private const int ThreadTimeout = 1000 * 60 * HeartbeatInMinutes;
         private readonly Dictionary<string, string> _config;
-        private IBatchInterface _batchInterface;
+        
         private bool _shutdown = false;
 
         public ClientStateManager(IHttpService httpService)
         {
+            _heartbeatClient = new HeartbeatClient(httpService);
             _taskClient = new TaskClient(httpService);
-            _heartbeatController = new HeartbeatClient(httpService);
-            ConfigManager configManager = new ConfigManager();
-            _batchInterface = new BatchDownloaderClient(httpService);
-            _config = configManager.GetConfig();
+            _batchClient = new BatchClient(httpService);
+            _config = new ConfigManager().GetConfig();
         }
 
         /// <summary>
         /// Runs the client state manager.
-        /// This is responsible for running heartbeat-,task- and batchthreads.
+        /// This is responsible for running heartbeat,task and batch threads.
         /// </summary>
         public void Run()
         {
@@ -54,9 +55,6 @@ namespace Client.Services
             _batchThread = new Thread(BatchThreadHandler);
             _batchThread.Start();
             _taskThread.Start();
-            while (!_shutdown)
-            {
-            }
         }
 
         /// <summary>
@@ -73,12 +71,13 @@ namespace Client.Services
         /// </summary>
         private void BatchThreadHandler()
         {
-            if (!_batchInterface.GetResult())
+            // TODO: This should loop like the other handlers. If the user has no uploaded Batches, it should not loop until the user has uploaded a Batch. 
+            if (!_batchClient.GetResult())
             {
                 return;
             }
 
-            List<Batch> batches = (List<Batch>) _batchInterface.GetBatchStatus();
+            List<Batch> batches = (List<Batch>) _batchClient.GetBatchStatus();
             // TODO handle downloaded batches.
             if (batches.Count > 0)
             {
@@ -99,15 +98,15 @@ namespace Client.Services
                 {
                     case Status.Working:
                         Console.WriteLine("Sent working");
-                        _heartbeatController.SendHeartbeatWorking();
+                        _heartbeatClient.SendHeartbeatWorking();
                         break;
                     case Status.Done:
-                        Console.WriteLine("Sent working");
-                        _heartbeatController.SendHeartbeatDone();
+                        Console.WriteLine("Sent heartbeat");
+                        _heartbeatClient.SendHeartbeatDone();
                         break;
                     case Status.ShuttingDown:
-                        Console.WriteLine("Sent working");
-                        _heartbeatController.SendHeartbeatShuttingDown();
+                        Console.WriteLine("Sent shutdown");
+                        _heartbeatClient.SendHeartbeatShuttingDown();
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -124,21 +123,33 @@ namespace Client.Services
         {
             while (!_shutdown)
             {
-                Models.Task task = _taskClient.GetTask();
+                Task task = _taskClient.GetTask();
                 Console.WriteLine("I just asked for a task");
                 if (task != null)
                 {
                     _status = Status.Working;
+                    
                     // Initiates a heartbeat thread which sends heartbeats.
                     _heartBeatThread.Start();
+                    
+                    // Setup the task completer and run the task
                     IInterpretedTaskCompleter interpretedTaskCompleter =
                         new InterpretedTaskCompleter(_config["InterpreterPath"], _config["WorkingDirectory"],
                             task.getSource());
                     interpretedTaskCompleter.Run();
+                    
+                    // TODO: The result of the Task should be sent to the service
+
                     // Exits the heartbeat thread
                     _heartBeatThread.Abort();
-                    // Sends the done message, to ensure it gets sent 
-                    _heartbeatController.SendHeartbeatDone();
+                    
+                    // Sends the done message, and ensures it is received
+                    bool response;
+                    do
+                    {
+                        response = _heartbeatClient.SendHeartbeatDone();
+                    } while (!response);
+                    
                     _status = Status.Done;
                 }
 
