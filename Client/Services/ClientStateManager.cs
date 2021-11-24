@@ -78,7 +78,7 @@ namespace Client.Services
                 return;
             }
 
-            List<BatchStatus > batches = (List<BatchStatus >) _batchInterface.GetBatchStatus();
+            List<Batch > batches = (List<Batch >) _batchInterface.GetBatchStatus();
             // TODO handle downloaded batches.
             if (batches.Count > 0)
             {
