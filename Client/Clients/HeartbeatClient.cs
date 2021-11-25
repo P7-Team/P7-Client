@@ -7,7 +7,7 @@ using System.Text;
 namespace Client.Clients
 {
      
-    public class HeartbeatClient
+    public class HeartbeatClient : IHeartbeatClient
     {
 
 
@@ -16,33 +16,47 @@ namespace Client.Clients
         {
             _client = client;
         }
-
+        
+        /// <summary>
+        /// Sends a heartbeat of the type provided as messageType.
+        /// </summary>
+        /// <param name="messageType">The messageType which should be sent.</param>
+        /// <returns>Returns true if the heartbeat was received, false if it wasn't.</returns>
         private bool SendHeartbeat(string messageType)
         {
          
             HttpContent content = new StringContent(
-                "{\"MessageType\":\"#type#\"}".Replace("#type#", messageType),
+                "{\"status\":\"#type#\"}".Replace("#type#", messageType),
                 Encoding.UTF8,
                 "application/json"); //Type of Content
 
             HttpResponseMessage response = _client.Post("api/HeartBeat", content);
 
-            HttpStatusCode statusOK = HttpStatusCode.OK; 
-
-            return response.StatusCode.Equals(statusOK);
-            
+            return response.StatusCode.Equals(HttpStatusCode.OK);
         }
 
+        /// <summary>
+        /// Sends a heartbeat with the status "Working".
+        /// </summary>
+        /// <returns>Returns true if the message was sent successfully, false if it wasn't.</returns>
         public bool SendHeartbeatWorking()
         {
             return SendHeartbeat("Working");
         }
 
+        /// <summary>
+        /// Sends a heartbeat with the status "Done".
+        /// </summary>
+        /// <returns>Returns true if the message was sent successfully, false if it wasn't.</returns>
         public bool SendHeartbeatDone()
         {
             return SendHeartbeat("Done");
         }
 
+        /// <summary>
+        /// Sends a heartbeat with the status "ShuttingDown".
+        /// </summary>
+        /// <returns>Returns true if the message was sent successfully, false if it wasn't.</returns>
         public bool SendHeartbeatShuttingDown()
         {
             return SendHeartbeat("ShuttingDown");

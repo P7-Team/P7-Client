@@ -43,5 +43,15 @@ namespace Client.Clients
 
             return response.IsSuccessStatusCode;
         }
+        
+        public IEnumerable<Batch> GetBatchStatus()
+        {
+            return new List<Batch>();
+        }
+
+        public bool GetResult()
+        {
+            return false;
+        }
     }
 }

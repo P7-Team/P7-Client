@@ -69,6 +69,11 @@ namespace Client_app
         {
             throw new System.NotImplementedException();
         }
+
+        public void SetToken(string token)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 
     public class UserClientTests

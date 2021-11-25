@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace Client.Clients
 {
-    public class UserClient
+    public class UserClient : IUserClient
     {
         private IHttpService _httpService;
 
@@ -30,7 +30,9 @@ namespace Client.Clients
             HttpContent content = new StringContent(UserToJson(username, password));
             HttpResponseMessage httpResponseMessage = _httpService.Post("/user/login", content);
 
-            return !httpResponseMessage.IsSuccessStatusCode ? "" : httpResponseMessage.Content.ReadAsStringAsync().Result;
+            return !httpResponseMessage.IsSuccessStatusCode
+                ? ""
+                : httpResponseMessage.Content.ReadAsStringAsync().Result;
         }
 
         private string UserToJson(string username, string password)
