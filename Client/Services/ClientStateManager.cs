@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Client.Clients;
 using Client.Interfaces;
@@ -22,6 +23,8 @@ namespace Client.Services
 
     public class ClientStateManager
     {
+        private static ClientStateManager _instance;
+        
         private Status _status;
         private readonly IHeartbeatClient _heartbeatClient;
         private readonly ITaskClient _taskClient;
@@ -35,7 +38,17 @@ namespace Client.Services
         
         private bool _shutdown = false;
 
-        public ClientStateManager(IHttpService httpService)
+        public static ClientStateManager GetClientStateManager()
+        {
+            if (_instance == null)
+            {
+                _instance = new ClientStateManager(HttpService.GetHttpService());
+            }
+
+            return _instance;
+        }
+
+        protected ClientStateManager(IHttpService httpService)
         {
             _heartbeatClient = new HeartbeatClient(httpService);
             _taskClient = new TaskClient(httpService);

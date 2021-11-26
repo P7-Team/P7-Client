@@ -1,4 +1,6 @@
 using System;
+using System.Data;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Client.Interfaces;
@@ -8,10 +10,27 @@ namespace Client.Services
 {
     public class HttpService : IHttpService
     {
+        private static HttpService _instance;
+        
         private readonly HttpClient _client;
         private readonly string _ip;
 
-        public HttpService(string ip, string token = "")
+        public static HttpService GetHttpService(string ip = "", string token = "")
+        {
+            if (_instance == null)
+            {
+                if (ip == null)
+                {
+                    throw new ArgumentException("IP was empty");
+                }
+                _instance = new HttpService(ip, token);
+            }
+
+            return _instance;
+        }
+        
+
+        protected HttpService(string ip, string token = "")
         {
             _client = new HttpClient();
             _ip = ip;

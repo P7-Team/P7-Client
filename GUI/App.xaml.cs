@@ -5,6 +5,8 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using Client.Interfaces;
+using Client.Services;
 
 namespace GUI
 {
@@ -13,5 +15,9 @@ namespace GUI
     /// </summary>
     public partial class App : Application
     {
+        public App()
+        {
+            HttpService.GetHttpService("http://164.90.236.116:80/");
+        }
     }
 }
