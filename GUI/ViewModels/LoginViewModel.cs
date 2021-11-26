@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Security;
 using System.Windows.Controls;
@@ -8,63 +10,68 @@ using System.Windows.Input;
 using System.Windows.Navigation;
 using Client.Services;
 using GUI.Helpers;
+using Microsoft.VisualBasic;
 
 namespace GUI.ViewModels
 {
     public class LoginViewModel : UserLoginCreationViewModel
     {
-        private readonly DelegateCommand _loginCommand;
         public ICommand LoginCommand => _loginCommand;
+        private readonly DelegateCommand _loginCommand;
 
         public bool LoggedIn = false;
 
-        private string _loginStatus = "";
+        private string _loginStatus;
         public string LoginStatus
         {
             get => _loginStatus;
-            set
-            {
-                SetProperty(ref _loginStatus, value);
-                OnPropertyChanged(nameof(LoginStatus));
-            }
+            set => SetProperty(ref _loginStatus, value);
         }
 
         public LoginViewModel()
         {
             _loginCommand = new DelegateCommand(OnLogin);
-
-            LoginStatus = "Nothing at the moment";
         }
 
         private void OnLogin(object parameter)
         {
             bool emptyUsername = String.IsNullOrEmpty(Username);
-            bool emptyPassword = Password == null || String.IsNullOrEmpty(Password.ToString());
+            bool emptyPassword = String.IsNullOrEmpty(Password); 
+
+            LoginStatus = "";
             
             if (emptyUsername)
             {
-                LoginStatus = LoginStatus.Concat("Username was empty. ").ToString();
+                LoginStatus += "Username was empty. ";
             }
             
             if (emptyPassword)
             {
-                LoginStatus = LoginStatus.Concat("Password was empty. ").ToString();
+                LoginStatus += "Password was empty. ";
             }
             
             if (emptyUsername || emptyPassword)
             {
                 return;
             }
-            
-            try
+
+            string token = UserClient.LoginUser(Username, Password);
+
+            if (String.IsNullOrEmpty(token))
             {
-                HttpService.GetHttpService().SetToken(UserClient.LoginUser(Username, Password.ToString()));
-                LoggedIn = true;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
                 LoginStatus = "Could not log in";
+            }
+            else
+            {
+                try
+                {
+                    HttpService.GetHttpService().SetToken(token);
+                    LoggedIn = true;
+                }
+                catch
+                {
+                    // Something
+                }
             }
 
             LoggedIn = true;

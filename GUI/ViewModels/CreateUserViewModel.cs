@@ -8,8 +8,8 @@ namespace GUI.ViewModels
     {
         private SecureString _secondPassword;
         
-        private readonly DelegateCommand _createUserCommand;
         public ICommand CreateUserCommand => _createUserCommand;
+        private readonly DelegateCommand _createUserCommand;
 
         public bool UserCreated = false;
 
@@ -19,6 +19,15 @@ namespace GUI.ViewModels
             set => SetProperty(ref _secondPassword, value);
         }
 
+
+        private string _createUserStatus;
+
+        public string CreateUserStatus
+        {
+            get => _createUserStatus;
+            set => SetProperty(ref _createUserStatus, value);
+        }
+
         public CreateUserViewModel()
         {
             _createUserCommand = new DelegateCommand(OnCreateUser);
@@ -26,10 +35,18 @@ namespace GUI.ViewModels
 
         private void OnCreateUser(object parameter)
         {
-            if (Password == SecondPassword)
+            CreateUserStatus = "";
+            // if (Password == SecondPassword)
             {
-                UserClient.CreateUser(Username, Password.ToString());
-                UserCreated = true;
+                try
+                {
+                    UserClient.CreateUser(Username, Password.ToString());
+                    UserCreated = true;
+                }
+                catch
+                {
+                    CreateUserStatus = "Could not create user";
+                }
             }
         }
     }

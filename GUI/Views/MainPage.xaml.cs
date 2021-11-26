@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 using Client.Services;
 using GUI.ViewModels;
 
@@ -14,6 +15,12 @@ namespace GUI.Views
 
             DataContext = _viewModel;
             InitializeComponent();
+        }
+
+        private void CreateRequest(object sender, RoutedEventArgs e)
+        {
+            Window win = new CreateRequestWindow();
+            win.Show();
         }
     }
 }

@@ -1,0 +1,21 @@
+﻿<Page x:Class="GUI.Views.Providing.Working"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:GUI.Views.Providing"
+      xmlns:viewModels="clr-namespace:GUI.ViewModels.Providing"
+      mc:Ignorable="d"
+      Title="Working">
+    
+    <!-- <Page.DataContext> -->
+    <!--     <viewModels:WorkingViewModel/> -->
+    <!-- </Page.DataContext> -->
+    <Grid>
+        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
+            <TextBlock Text="{Binding Path=BatchTitle}"/>
+            <TextBlock Text="{Binding Path=BatchDescription}"/>
+            <TextBlock Text="{Binding Path=BatchUser}"/>
+        </StackPanel>
+    </Grid>
+</Page>

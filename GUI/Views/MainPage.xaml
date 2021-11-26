@@ -4,16 +4,27 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:GUI.Views"
+      xmlns:viewModels="clr-namespace:GUI.ViewModels"
       mc:Ignorable="d"
-      Title="MainPage">
+      Title="MainPage" Width="800" Height="600">
+    
+    <!-- <Page.DataContext> -->
+    <!--     <viewModels:MainViewModel/> -->
+    <!-- </Page.DataContext> -->
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="0.1*" />
             <RowDefinition Height ="0.9*" />
         </Grid.RowDefinitions>
         
-        <Grid Background="Green" Grid.Row="0">
+        <Grid Background="CornflowerBlue" Grid.Row="0">
             <!-- User stuff and points -->
+            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                <TextBlock Margin="0, 0, 10, 0">Logged in user</TextBlock>
+                
+                <TextBlock>Points</TextBlock>
+            </StackPanel>
         </Grid>
         
         <Grid Grid.Row="1">
@@ -23,13 +34,30 @@
             </Grid.ColumnDefinitions>
             
             <!-- Providing -->
-            <Grid Background="Blue" Grid.Column="0">
-                <Button VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <Grid Background="White" Grid.Column="0">
+                <Frame NavigationUIVisibility="Hidden" Source="Providing/NotWorking.xaml"/>
             </Grid>
             
             <!-- Requesting -->
-            <Grid Background="Red" Grid.Column="1">
-                
+            <Grid Background="#ABABAB" Grid.Column="1">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top">
+                    <TextBlock>My Projects</TextBlock>
+                    
+                    <Button Content="Add Project" Click="CreateRequest"></Button>
+                    
+                    <ItemsControl x:Name="BatchStack" ItemsSource="{Binding Path=MyBatchesList}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Vertical"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text=""></TextBlock>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
             </Grid>
         </Grid>
     </Grid>

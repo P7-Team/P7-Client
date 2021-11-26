@@ -33,10 +33,15 @@ namespace Client.Services
         private Thread _taskThread;
         private Thread _batchThread;
         private const int HeartbeatInMinutes = 5;
-        private const int ThreadTimeout = 1000 * 60 * HeartbeatInMinutes;
+        private const int HeartbeatTimeout = 1000 * 60 * HeartbeatInMinutes;
+        private const int BatchTimeout = 1000 * 60 * 2;
+        private const int TaskTimeout = (1000 * 60) / 4;
         private readonly Dictionary<string, string> _config;
         
         private bool _shutdown = false;
+        private bool _working = false;
+
+        private Task _currentTask = null;
 
         public static ClientStateManager GetClientStateManager()
         {
@@ -66,7 +71,7 @@ namespace Client.Services
             _taskThread = new Thread(TaskThreadHandler);
             _batchThread = new Thread(BatchThreadHandler);
             _batchThread.Start();
-            _taskThread.Start();
+            // _taskThread.Start();
         }
 
         /// <summary>
@@ -76,6 +81,8 @@ namespace Client.Services
         {
             _shutdown = true;
         }
+
+        
 
 
         /// <summary>
@@ -96,7 +103,7 @@ namespace Client.Services
             {
             }
 
-            Thread.Sleep(ThreadTimeout);
+            Thread.Sleep(BatchTimeout);
         }
 
         /// <summary>
@@ -125,7 +132,7 @@ namespace Client.Services
                         throw new ArgumentOutOfRangeException();
                 }
 
-                Thread.Sleep(ThreadTimeout);
+                Thread.Sleep(HeartbeatTimeout);
             }
         }
 
@@ -136,9 +143,9 @@ namespace Client.Services
         {
             while (!_shutdown)
             {
-                Task task = _taskClient.GetTask();
+                _currentTask = _taskClient.GetTask();
                 Console.WriteLine("I just asked for a task");
-                if (task != null)
+                if (_currentTask != null)
                 {
                     _status = Status.Working;
                     
@@ -148,11 +155,13 @@ namespace Client.Services
                     // Setup the task completer and run the task
                     IInterpretedTaskCompleter interpretedTaskCompleter =
                         new InterpretedTaskCompleter(_config["InterpreterPath"], _config["WorkingDirectory"],
-                            task.getSource());
+                            _currentTask.getSource());
                     interpretedTaskCompleter.Run();
                     
+                    _status = Status.Done;
+                    
                     // TODO: The result of the Task should be sent to the service
-
+                    
                     // Exits the heartbeat thread
                     _heartBeatThread.Abort();
                     
@@ -160,14 +169,51 @@ namespace Client.Services
                     bool response;
                     do
                     {
+                        Thread.Sleep(HeartbeatTimeout);
                         response = _heartbeatClient.SendHeartbeatDone();
                     } while (!response);
                     
-                    _status = Status.Done;
+                    // Resets the current task to null
+                    _currentTask = null;
+                    
+                    // Tells subscribers (the UI's view model) that the task is done
+                    RaiseFinishedWorking();
+                    Thread.Sleep(TaskTimeout);
                 }
-
-                Thread.Sleep(ThreadTimeout);
+                else
+                {
+                    Thread.Sleep(TaskTimeout);
+                }
             }
+        }
+        
+        public void StartWorking()
+        {
+            _working = true;
+            _taskThread.Start();
+        }
+
+        public void StopWorkingNow()
+        {
+            _working = false;
+            _taskThread.Abort();
+        }
+
+        public void StopWorkingAfterThisTask()
+        {
+            _working = false;
+        }
+        
+        public event Action FinishedWorking = delegate {  };
+
+        private void RaiseFinishedWorking()
+        {
+            FinishedWorking();
+        }
+
+        public Task GetCurrentTask()
+        {
+            return _currentTask;
         }
     }
 }

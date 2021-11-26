@@ -7,7 +7,7 @@ namespace GUI.ViewModels
     public class UserLoginCreationViewModel : ViewModelBase
     {
         private string _username;
-        private SecureString _password;
+        private string _password;
         protected readonly UserClient UserClient;
 
         public string Username
@@ -16,7 +16,7 @@ namespace GUI.ViewModels
             set => SetProperty(ref _username, value);
         }
 
-        public SecureString Password
+        public string Password
         {
             get => _password;
             set => SetProperty(ref _password, value);

@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Client.Interfaces;
 using Client.Models;
@@ -19,7 +20,7 @@ namespace Client.Services
         {
             if (_instance == null)
             {
-                if (ip == null)
+                if (String.IsNullOrEmpty(ip))
                 {
                     throw new ArgumentException("IP was empty");
                 }
@@ -55,7 +56,15 @@ namespace Client.Services
         /// <returns>Success status of the request.</returns>
         public HttpResponseMessage Send(HttpRequestMessage message)
         {
-            return _client.SendAsync(message).Result;
+            try
+            {
+                return _client.SendAsync(message).Result;
+            }
+            catch
+            {
+                return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable);
+            }
+            
         }
 
         /// <summary>
@@ -65,7 +74,14 @@ namespace Client.Services
         /// <returns>Success status of the request.</returns>
         public HttpResponseMessage Get(string uri)
         {
-            return _client.GetAsync(new Uri(_ip + uri)).Result;
+            try
+            {
+                return _client.GetAsync(new Uri(_ip + uri)).Result;
+            }
+            catch
+            {
+                return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable);
+            }
         }
 
         /// <summary>
@@ -76,7 +92,14 @@ namespace Client.Services
         /// <returns>Success status of the request.</returns>
         public HttpResponseMessage Post(string uri, HttpContent content)
         {
-            return _client.PostAsync(new Uri(_ip + uri), content).Result;
+            try
+            {
+                return _client.PostAsync(new Uri(_ip + uri), content).Result;
+            }
+            catch
+            {
+                return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable);
+            }
         }
         
         /// <summary>
@@ -86,7 +109,14 @@ namespace Client.Services
         /// <returns>Success status of the request.</returns>
         public HttpResponseMessage Delete(string uri)
         {
-            return _client.DeleteAsync(new Uri(_ip + uri)).Result;
+            try
+            {
+                return _client.DeleteAsync(new Uri(_ip + uri)).Result;
+            }
+            catch
+            {
+                return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable);
+            }
         }
     }
 }

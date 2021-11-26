@@ -8,10 +8,6 @@
       mc:Ignorable="d"
       Title="Login" Height="450" Width="800">
     
-    <Page.DataContext>
-        <viewModels:LoginViewModel/>
-    </Page.DataContext>
-    
     <Grid>
         <StackPanel Width="200" VerticalAlignment="Center" HorizontalAlignment="Center">
             <TextBlock HorizontalAlignment="Center">
@@ -19,17 +15,19 @@
             </TextBlock>
         
             <!-- Box for username -->
-            <TextBox Text="{Binding Path=Username, UpdateSourceTrigger=PropertyChanged}" 
-                     TextChanged="UsernameBoxChanged" />
+            <TextBox Text="{Binding Path=Username}" />
             
             <!-- Box for password  -->
-            <PasswordBox PasswordChanged="PasswordBoxChanged"/>
+            <TextBox Text="{Binding Path=Password}"/>
             
             <!-- Login button -->
             <Button Content="Login" Click="GotoMainPage"/>
             
             <!-- Create new user button  -->
             <Button Content="Create New User" Click="GotoCreateUserPage"/>
+            
+            
+            <TextBlock Text="{Binding Path=LoginStatus}" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
         </StackPanel>
     </Grid>
 </Page>

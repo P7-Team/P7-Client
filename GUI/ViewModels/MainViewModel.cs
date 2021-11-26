@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Windows.Input;
+using Client.Models;
 using Client.Services;
 using GUI.Helpers;
 
@@ -7,23 +10,31 @@ namespace GUI.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
-        // Something about changing between login, create user, and main page
+        private ClientStateManager _stateManager;
 
-        private ClientStateManager _stateManager; 
+        private List<Batch> _myBatchesList;
+        public List<Batch> MyBatchesList
+        {
+            get => _myBatchesList;
+            set => SetProperty(ref _myBatchesList, value);
+        }
         
-        private readonly DelegateCommand _changeSomethingCommand;
-        public ICommand ChangeSomethingCommand => _changeSomethingCommand;
+        public ICommand CreateRequestCommand => _createRequestCommand;
+        private readonly DelegateCommand _createRequestCommand;
 
         public MainViewModel()
         {
-            _changeSomethingCommand = new DelegateCommand(OnChangeSomething);
-            
             _stateManager = ClientStateManager.GetClientStateManager();
+            _stateManager.Run();
+
+            MyBatchesList = new List<Batch>();
+
+            _createRequestCommand = new DelegateCommand(OnCreateRequest);
         }
 
-        private void OnChangeSomething(object parameter)
+        private void OnCreateRequest(object parameter)
         {
-            Console.WriteLine("Her!");
+            
         }
     }
 }

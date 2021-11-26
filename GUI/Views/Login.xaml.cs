@@ -16,16 +16,8 @@ namespace GUI.Views
             DataContext = _viewModel;
             InitializeComponent();
         }
-        
-        private void UsernameBoxChanged(object sender, RoutedEventArgs e)
-        {
-            _viewModel.Username = ((TextBox)sender).Text;
-        }
 
-        private void PasswordBoxChanged(object sender, RoutedEventArgs e)
-        {
-            _viewModel.Password = ((PasswordBox)sender).SecurePassword;
-        }
+        
 
         private void GotoCreateUserPage(object sender, RoutedEventArgs e)
         {
