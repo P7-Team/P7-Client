@@ -20,6 +20,9 @@
             <TextBlock Text="{Binding Path=SourceProgram}"/>
             <TextBlock Text="{Binding Path=Input}"/>
             <CheckBox IsChecked="{Binding Path=StopWorkingAfterThisTask}"></CheckBox>
+            <Button Content="Stop working now" 
+                    Command="{Binding Path=StopWorkingNowCommand}" 
+                    Click="StopWorkingClick"/>
         </StackPanel>
     </Grid>
 </Page>

@@ -1,4 +1,6 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Navigation;
 using GUI.ViewModels.Providing;
 
 namespace GUI.Views.Providing
@@ -14,6 +16,11 @@ namespace GUI.Views.Providing
             DataContext = _viewModel;
 
             InitializeComponent();
+        }
+
+        private void StopWorkingClick(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new NotWorking());
         }
     }
 }

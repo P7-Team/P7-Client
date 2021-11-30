@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.ComponentModel;
+using System.Threading;
 using System.Windows.Input;
 using Client.Models;
 using Client.Services;
@@ -27,7 +28,7 @@ namespace GUI.ViewModels.Providing
             
             // Start a session timer??
         }
-        
+
         public ICommand StopWorkingNowCommand => _stopWorkingNowCommand;
         private readonly DelegateCommand _stopWorkingNowCommand;
 
@@ -92,9 +93,11 @@ namespace GUI.ViewModels.Providing
         
         private void OnStopWorkingNow(object parameter)
         {
-            _getCurrentTaskThread?.Abort();
-            
+            _getCurrentTaskThread?.Interrupt();
+
             _stateManager.StopWorkingNow();
+
+            Status = "Stopped working";
         }
 
 
@@ -112,24 +115,36 @@ namespace GUI.ViewModels.Providing
 
         private void GetCurrentTask()
         {
-            _getCurrentTaskThread?.Abort();
-            
+            _getCurrentTaskThread?.Interrupt();
+
             _getCurrentTaskThread = new Thread(() =>
             {
                 SourceProgram = "No program for now...";
                 Status = "Getting task";
                 do
                 {
-                    Thread.Sleep(1000);
+                    try
+                    {
+                        Thread.Sleep(1000);
+                    }
+                    catch (ThreadInterruptedException e)
+                    {
+                        return;
+                    }
+                    
                     CurrentTask = _stateManager.GetCurrentTask();
                 } while (CurrentTask == null);
+
                 Status = "Working on task";
                 // Get batch information, set appropriate fields
 
                 SourceProgram = CurrentTask.getSource();
 
                 // Start a task timer?? 
-            });
+            })
+            {
+                IsBackground = true
+            };
             _getCurrentTaskThread.Start();
         }
     }

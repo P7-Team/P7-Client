@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading;
 using System.Windows.Input;
 using Client.Models;
@@ -19,8 +20,6 @@ namespace GUI.ViewModels
             set => SetProperty(ref _myBatchesList, value);
         }
         
-        public ICommand CreateRequestCommand => _createRequestCommand;
-        private readonly DelegateCommand _createRequestCommand;
 
         public MainViewModel()
         {
@@ -28,13 +27,6 @@ namespace GUI.ViewModels
             _stateManager.Run();
 
             MyBatchesList = new List<Batch>();
-
-            _createRequestCommand = new DelegateCommand(OnCreateRequest);
-        }
-
-        private void OnCreateRequest(object parameter)
-        {
-            
         }
     }
 }
