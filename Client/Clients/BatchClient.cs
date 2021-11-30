@@ -1,17 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Sockets;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using Client.Interfaces;
 using Client.Models;
 using Client.Services;
 using Newtonsoft.Json;
+using System.IO;
 using Task = Client.Models.Task;
-
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Client.Clients
 {
@@ -36,7 +32,7 @@ namespace Client.Clients
             _service = service;
         }
 
-
+        static readonly HttpClient client = new HttpClient();
         public List<BatchStatus> GetBatchStatus()
         {
             // send get to http/batch/status:  
@@ -63,11 +59,15 @@ namespace Client.Clients
         }
 
 
-        public bool GetResult()
+        public async void GetResult()
         {
             List<BatchStatus> Result = GetBatchStatus();
             BatchStatus _bacth1 = new BatchStatus(true, 1, 10, 1);
+            BatchStatus _bacth2 = new BatchStatus(true, 1, 10, 1);
+            BatchStatus _bacth3 = new BatchStatus(true, 1, 10, 1);
             Result.Add(_bacth1);
+            // Result.Add(_bacth2);
+            // Result.Add(_bacth3);
 
             int resultlength = Result.Count;
 
@@ -78,31 +78,53 @@ namespace Client.Clients
 
                     if (Batchstatus.Finished)
                     {
+                       
                         int id = Batchstatus.BatchID;
-                        byte[] buffer = new byte[512];
-                        int bytesRead = 0; 
-
-                        string pathToBacth = "/batch/result/" + id + ":";
-                        HttpResponseMessage response = _service.Get("http://localhost:5000/api/batch/result");
-
-                        if (response.IsSuccessStatusCode)
+                        try
                         {
-                            do {
-                                // TODO insert stream; 
-                                Console.WriteLine(response);
-                                // TODO make some new logi for this; 
-                                // start make manu call;
-                        } while (bytesRead > 0);
-                        }
+                            HttpResponseMessage response = await client.GetAsync("http://localhost:5000/api/batch/result");
+                            response.EnsureSuccessStatusCode();
+                            string responseBody = await response.Content.ReadAsStringAsync();
+                            Stream streanmOfFiles = await response.Content.ReadAsStreamAsync(); 
+                            Console.WriteLine(responseBody);
+                            SectionedDataReader reader = new SectionedDataReader(new MultipartReader(responseBody, streanmOfFiles));
+                            //MultipartFormDataContent  multiFile = new MultipartFormDataContent();
 
+
+                            MultipartMarshaller<MultipartSection> batchMarshaller = new MultipartMarshaller<MultipartSection>(reader);
+
+                            Dictionary<string, string> formData = batchMarshaller.GetFormData();
+                            List<FileStream> streams = batchMarshaller.GetFileStreams();
+                            //= (MultipartFormDataContent)response; 
+                            //Console.WriteLine(multiFile.ToString());
+
+
+
+                            //Console.Write(StreamOfFiles.ToString());
+                            //Console.Read();
+
+
+                        }
+                        catch (HttpRequestException e)
+                        {
+                            Console.WriteLine("\nException Caught!");
+                            Console.WriteLine("Message :{0} ", e.Message);
+                            Console.Read();
+                        }
+                        // string pathToBacth = "/batch/result/" + id + ":";
+                        // HttpResponseMessage response = _service.Get("http://localhost:5000/api/batch/result");
+                        // 
+                        // var fileInfo = new FileInfo($"bob.txt");
+                        // var response = await _service.GetAsync(http://localhost:5000/api/batch/result);
+                        // response.Content = (MultipartFormDataContent) multiFile;
+                        // multiFile = (MultipartFormDataContent) response.Content;
+                        // multiFile.Add((MultipartFormDataContent)response.Content);
+
+                        
                     }
                 }
-                return true;
             }
-            else
-            {
-                return false;
-            }
+
         }
     }
 }
