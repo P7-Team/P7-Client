@@ -4,9 +4,86 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:GUI.Views"
+        xmlns:viewModels="clr-namespace:GUI.ViewModels"
         mc:Ignorable="d"
-        Title="CreateRequestWindow" Height="800" Width="1200">
+        Title="CreateRequestWindow" Height="400" Width="400">
+    
+    <!-- <Page.DataContext> -->
+    <!--     <viewModels:CreateRequestViewModel/> -->
+    <!-- </Page.DataContext> -->
     <Grid>
-        
+        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Width="400" Margin="10">
+            <TextBlock>
+                Title
+            </TextBlock>
+            
+            <TextBox Text="{Binding Path=BatchTitle}"/>
+            
+            <TextBlock>
+                Description
+            </TextBlock>
+            
+            <TextBox Text="{Binding Path=BatchDescription}"/>
+            
+            <TextBlock>
+                Source Language
+            </TextBlock>
+            
+            <ComboBox SelectedIndex="0" SelectionChanged="SourceLanguageChanged">
+                <TextBlock>
+                    Python
+                </TextBlock>
+            </ComboBox>
+            
+            <TextBlock>
+                Source Version
+            </TextBlock>
+            
+            <ComboBox SelectedIndex="0" SelectionChanged="SourceVersionChanged">
+                <TextBlock>
+                    3.9
+                </TextBlock>
+            </ComboBox>
+            
+            <TextBlock>
+                Source Program
+            </TextBlock>
+            
+            <TextBox Text="{Binding Path=SourceProgram}"/>
+            
+            <TextBlock>
+                Input files
+            </TextBlock>
+            
+            <TextBox Text="{Binding Path=InputFiles}"/>
+            
+            <TextBlock>
+                Replication
+            </TextBlock>
+            
+            <ComboBox SelectedIndex="0" SelectionChanged="ReplicationChanged">
+                <TextBlock>
+                    1
+                </TextBlock>
+                <TextBlock>
+                    2
+                </TextBlock>
+                <TextBlock>
+                    3
+                </TextBlock>
+            </ComboBox>
+            
+            <Button Content="Upload Batch" 
+                    IsEnabled="{Binding Path=BatchNotUploaded}"
+                    Command="{Binding Path=CreateRequestCommand}"/>
+            
+            <Button Content="Close" 
+                    IsEnabled="{Binding Path=BatchUploaded}" 
+                    Click="CloseWindow"/>
+            
+            
+            <TextBlock Text="{Binding Path=UploadStatus}"/>
+            
+        </StackPanel>
     </Grid>
 </Window>

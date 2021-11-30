@@ -16,6 +16,10 @@
             <TextBlock Text="{Binding Path=BatchTitle}"/>
             <TextBlock Text="{Binding Path=BatchDescription}"/>
             <TextBlock Text="{Binding Path=BatchUser}"/>
+            <TextBlock Text="{Binding Path=Status}"/>
+            <TextBlock Text="{Binding Path=SourceProgram}"/>
+            <TextBlock Text="{Binding Path=Input}"/>
+            <CheckBox IsChecked="{Binding Path=StopWorkingAfterThisTask}"></CheckBox>
         </StackPanel>
     </Grid>
 </Page>

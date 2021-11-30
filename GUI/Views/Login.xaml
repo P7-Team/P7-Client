@@ -27,7 +27,7 @@
             <Button Content="Create New User" Click="GotoCreateUserPage"/>
             
             
-            <TextBlock Text="{Binding Path=LoginStatus}" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+            <TextBlock Text="{Binding Path=LoginStatus}" HorizontalAlignment="Left" VerticalAlignment="Center"></TextBlock>
         </StackPanel>
     </Grid>
 </Page>

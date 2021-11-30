@@ -35,15 +35,17 @@ namespace GUI.ViewModels
 
         private void OnCreateUser(object parameter)
         {
-            CreateUserStatus = "";
-            // if (Password == SecondPassword)
+            try
             {
-                try
-                {
-                    UserClient.CreateUser(Username, Password.ToString());
-                    UserCreated = true;
-                }
-                catch
+                UserCreated = UserClient.CreateUser(Username, Password);
+            }
+            catch
+            {
+                CreateUserStatus = "Could not create user";
+            }
+            finally
+            {
+                if (UserCreated == false)
                 {
                     CreateUserStatus = "Could not create user";
                 }

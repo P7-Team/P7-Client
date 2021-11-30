@@ -161,7 +161,7 @@ namespace Client.Services
                     _status = Status.Done;
                     
                     // TODO: The result of the Task should be sent to the service
-                    
+
                     // Exits the heartbeat thread
                     _heartBeatThread.Abort();
                     
