@@ -141,7 +141,7 @@ namespace Client.Services
         /// </summary>
         private void TaskThreadHandler()
         {
-            while (!_shutdown)
+            while (!_working)
             {
                 _currentTask = _taskClient.GetTask();
                 Console.WriteLine("I just asked for a task");
