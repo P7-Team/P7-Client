@@ -25,6 +25,7 @@
             
             <!-- Create new account button  -->
             <Button Content="Create" Click="GotoLoginPage"/>
+            <Button Content="Cancel" Click="GotoLoginPage"/>
             
             <TextBlock Text="{Binding Path=CreateUserStatus}"></TextBlock>
         </StackPanel>

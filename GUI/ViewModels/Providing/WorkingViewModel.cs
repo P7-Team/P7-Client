@@ -18,6 +18,8 @@ namespace GUI.ViewModels.Providing
             _stateManager = ClientStateManager.GetClientStateManager();
 
             _stateManager.FinishedWorking += TaskHasFinished;
+            _stateManager.StoppedWorking += StoppedWorking;
+            
             _stopWorkingNowCommand = new DelegateCommand(OnStopWorkingNow);
 
             StopWorkingAfterThisTask = false;
@@ -60,8 +62,6 @@ namespace GUI.ViewModels.Providing
             set => SetProperty(ref _status, value);
         }
         
-        
-
         private Task _currentTask;
         public Task CurrentTask
         {
@@ -111,6 +111,11 @@ namespace GUI.ViewModels.Providing
             {
                 GetCurrentTask();
             }
+        }
+
+        private void StoppedWorking()
+        {
+            
         }
 
         private void GetCurrentTask()

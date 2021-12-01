@@ -1,10 +1,5 @@
 using System;
-using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using Client.Clients;
 using Client.Interfaces;
@@ -33,34 +28,33 @@ namespace Client.Services
         private Thread _taskThread;
         private Thread _batchThread;
         private const int HeartbeatInMinutes = 5;
-        private const int HeartbeatTimeout = 1000 * 60 * HeartbeatInMinutes;
-        private const int BatchTimeout = 1000 * 60 * 2;
-        private const int TaskTimeout = (1000 * 60) / 4;
+        private readonly TimeSpan HeartbeatTimeout;
+        private readonly TimeSpan BatchTimeout;
+        private readonly TimeSpan TaskTimeout;
         private readonly Dictionary<string, string> _config;
         
-        private bool _shutdown = false;
-        private bool _working = false;
-        private bool _heartbearting = false;
-        private bool _fetchingBatches = false;
+        private bool _shutdown;
+        private bool _working;
+        private bool _heartbearting;
+        private bool _fetchingBatches;
 
-        private Task _currentTask = null;
+        private Task _currentTask;
 
         public static ClientStateManager GetClientStateManager()
         {
-            if (_instance == null)
-            {
-                _instance = new ClientStateManager(HttpService.GetHttpService());
-            }
-
-            return _instance;
+            return _instance ??= new ClientStateManager(HttpService.GetHttpService());
         }
 
-        protected ClientStateManager(IHttpService httpService)
+        private ClientStateManager(IHttpService httpService)
         {
             _heartbeatClient = new HeartbeatClient(httpService);
             _taskClient = new TaskClient(httpService);
             _batchClient = new BatchClient(httpService);
             _config = new ConfigManager().GetConfig();
+            
+            HeartbeatTimeout = new TimeSpan(0, 5, 0);
+            BatchTimeout = new TimeSpan(0, 2, 0);
+            TaskTimeout = new TimeSpan(0, 0, 25);
         }
 
         /// <summary>
@@ -126,26 +120,29 @@ namespace Client.Services
                     if (batches.Count > 0)
                     {
                     }
-
-                    try
-                    {
-                        Thread.Sleep(BatchTimeout);
-                    }
-                    catch (ThreadInterruptedException e)
+                    
+                    if (!TrySleep(BatchTimeout))
                     {
                         break;
                     }
                 }
 
-                try
-                {
-                    Thread.Sleep(Timeout.Infinite);
-                }
-                catch (ThreadInterruptedException e)
-                {
-                    // Left empty
-                }
+                TrySleep(Timeout.InfiniteTimeSpan);
             }
+        }
+
+        private bool TrySleep(TimeSpan duration)
+        {
+            try
+            {
+                Thread.Sleep(duration);
+            }
+            catch (ThreadInterruptedException)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -176,24 +173,13 @@ namespace Client.Services
                             throw new ArgumentOutOfRangeException();
                     }
 
-                    try
-                    {
-                        Thread.Sleep(HeartbeatTimeout);
-                    }
-                    catch (ThreadInterruptedException e)
+                    if (!TrySleep(HeartbeatTimeout))
                     {
                         break;
                     }
                 }
 
-                try
-                {
-                    Thread.Sleep(Timeout.Infinite);
-                }
-                catch (ThreadInterruptedException e)
-                {
-                    // Left empty
-                }
+                TrySleep(Timeout.InfiniteTimeSpan);
             }
         }
 
@@ -236,14 +222,11 @@ namespace Client.Services
                         bool response = false;
                         do
                         {
-                            try
-                            {
-                                Thread.Sleep(HeartbeatTimeout);
-                            }
-                            catch (ThreadInterruptedException e)
+                            if (!TrySleep(HeartbeatTimeout))
                             {
                                 break;
                             }
+                            
                             response = _heartbeatClient.SendHeartbeatDone();
                         } while (!response);
                         
@@ -257,40 +240,24 @@ namespace Client.Services
                         {
                             break;
                         }
-                        
-                        try
-                        {
-                            Thread.Sleep(TaskTimeout);
-                        }
-                        catch (ThreadInterruptedException e)
+
+                        if (!TrySleep(TaskTimeout))
                         {
                             break;
                         }
                     }
                     else
                     {
-                        try
-                        {
-                            Thread.Sleep(TaskTimeout);
-                        }
-                        catch (ThreadInterruptedException e)
+                        if (!TrySleep(TaskTimeout))
                         {
                             break;
                         }
                     }
                 }
+                RaiseStoppedWorking();
 
-                try
-                {
-                    Thread.Sleep(Timeout.Infinite);
-                }
-                catch (ThreadInterruptedException e)
-                {
-                    // Left empty
-                }
+                TrySleep(Timeout.InfiniteTimeSpan);
             }
-            
-            
         }
         
         public void StartWorking()
@@ -312,6 +279,12 @@ namespace Client.Services
         }
         
         public event Action FinishedWorking = delegate {  };
+        public event Action StoppedWorking = delegate {  };
+
+        private void RaiseStoppedWorking()
+        {
+            StoppedWorking();
+        }
 
         private void RaiseFinishedWorking()
         {
