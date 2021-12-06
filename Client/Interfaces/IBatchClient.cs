@@ -7,8 +7,8 @@ namespace Client.Interfaces
     {
         public bool AddBatch(Batch batch);
         
-        public IEnumerable<Batch> GetBatchStatus();
+        public List<BatchStatus> GetBatchStatus();
 
-        public bool GetResult();
+        public void GetResult(List<BatchStatus> Result, string patchToSavefiles);
     }
 }

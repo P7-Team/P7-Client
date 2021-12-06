@@ -10,6 +10,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Client.Models;
 using Task = System.Threading.Tasks.Task;
+using Client.Services;
 
 namespace Client.Clients
 {
@@ -111,12 +112,13 @@ namespace Client.Clients
             return response.IsSuccessStatusCode;
         }
 
-        public IEnumerable<BatchStatus> GetBatchStatus()
+        public List<BatchStatus> GetBatchStatus()
         {
 
             try
             {
                 HttpResponseMessage response = _service.Get("/api/batch/status");
+                List<BatchStatus> _batchStatuslist=  new List<BatchStatus>(); 
 
                 //  If resice a success resonse 
                 if (response.IsSuccessStatusCode && response.Content != null)
@@ -146,7 +148,7 @@ namespace Client.Clients
             }
         }
 
-        public async void GetResult(List<BatchStatus> Result, String patchToSavefiles)
+        public async void GetResult(List<BatchStatus> Result, string patchToSavefiles)
         {
             if (Result.Count > 0)
             {

@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using Client.Clients;
 
 namespace Client_app
 {
@@ -87,6 +88,11 @@ namespace Client_app
             {
                 throw new NotImplementedException();
             }
+
+            public void SetToken(string token)
+            {
+                throw new NotImplementedException();
+            }
         }
         [Fact]
         public Task GetFileRuns()
@@ -108,7 +114,7 @@ namespace Client_app
             BatchClient client = new BatchClient(testHttpService);
 
             List<BatchStatus> response = client.GetBatchStatus();
-            Assert.True(response.Count >0);
+            Assert.True(response.Count > 0);
             Assert.IsType<BatchStatus>(response[0]);
         }
 
