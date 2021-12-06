@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -7,10 +8,12 @@ using System.IO;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Client.Models;
+using Task = System.Threading.Tasks.Task;
 
 namespace Client.Clients
 {
-    public class BatchClient
+    public class BatchClient : IBatchClient
     {
         private List<BatchStatus> _batchStatuslist = new List<BatchStatus>();
         private IHttpService _service;
@@ -29,14 +32,15 @@ namespace Client.Clients
                 fileStream.Dispose();
             }
         }
+
         public async Task SaveBatchResultAsync(string patchToSavefiles, string file)
         {
             try
             {
-              
+
                 HttpResponseMessage response = _service.Get("api/batch/result/" + file);
 
-                if (response.IsSuccessStatusCode && response.Content != null )
+                if (response.IsSuccessStatusCode && response.Content != null)
                 {
 
                     try
@@ -76,18 +80,46 @@ namespace Client.Clients
                 Console.WriteLine("Message :{0} ", e.Message);
                 Console.Read();
             }
-        
+
 
         }
 
-        public List<BatchStatus> GetBatchStatus()
+        public bool AddBatch(Batch batch)
         {
+            Dictionary<string, string> formdata = new Dictionary<string, string>()
+            {
+                {"id", batch.Id},
+                {"language", batch.Language}
+            };
+
+            Dictionary<string, Stream> files = new Dictionary<string, Stream>()
+            {
+                {"source", batch.Source.Data}
+            };
+
+            for (int i = 0; i < batch.Inputs.Count; i++)
+            {
+                files.Add(batch.Inputs[i].Name, batch.Inputs[i].Data);
+                string encoding = "encoding" + batch.Inputs[i].Name;
+                formdata.Add(encoding, batch.Inputs[i].Enc.BodyName);
+            }
+
+            MultipartContent content = MultipartFormDataHelper.CreateContent(formdata, files);
+
+            HttpResponseMessage response = _service.Post("/api/batch", content);
+
+            return response.IsSuccessStatusCode;
+        }
+
+        public IEnumerable<BatchStatus> GetBatchStatus()
+        {
+
             try
             {
                 HttpResponseMessage response = _service.Get("/api/batch/status");
 
                 //  If resice a success resonse 
-                if (response.IsSuccessStatusCode && response.Content != null )
+                if (response.IsSuccessStatusCode && response.Content != null)
                 {
                     try
                     {
@@ -96,7 +128,7 @@ namespace Client.Clients
                     catch (ArgumentNullException e)
                     {
                         Console.WriteLine(" Something when wrong with downloading Batches Status list ", e);
-                        throw e; 
+                        throw e;
                     }
                     return _batchStatuslist;
                 }
@@ -110,27 +142,27 @@ namespace Client.Clients
             {
                 Console.WriteLine("\nException Caught!");
                 Console.WriteLine("Message :{0} ", ex.Message);
-                throw ex; 
+                throw ex;
             }
         }
 
-        public async void GetResult(string patchToSavefiles)
+        public async void GetResult(List<BatchStatus> Result, String patchToSavefiles)
+        {
+            if (Result.Count > 0)
             {
-
-                List<BatchStatus> Result = GetBatchStatus();
-                if (Result.Count > 0)
+                foreach (BatchStatus _batchstatus in Result)
                 {
-                    foreach (BatchStatus _batchstatus in Result)
+                    if (_batchstatus.Finished && _batchstatus.Files.Count > 0)
                     {
-                        if (_batchstatus.Finished && _batchstatus.Files.Count > 0)
+                        foreach (string File in _batchstatus.Files)
                         {
-                            foreach (string File in _batchstatus.Files)
-                            {
-                                await SaveBatchResultAsync(patchToSavefiles, File);
-                            }
+                            await SaveBatchResultAsync(patchToSavefiles, File);
                         }
                     }
                 }
             }
         }
     }
+}
+
+

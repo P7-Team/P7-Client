@@ -2,10 +2,11 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using Client.Exceptions;
+using Client.Interfaces;
 
 namespace Client.Services
 {
-    public class InterpretedTaskCompleter
+    public class InterpretedTaskCompleter : IInterpretedTaskCompleter
     {
         private readonly string _pathToInterpreter;
         private readonly string _sourceFileName;
@@ -48,7 +49,8 @@ namespace Client.Services
                 else
                 {
                     throw new ArgumentException(
-                        "Could not find source file, or source file is not readable. Interpreter says: " + standardError);
+                        "Could not find source file, or source file is not readable. Interpreter says: " +
+                        standardError);
                 }
             }
             catch (ArgumentException)
@@ -57,7 +59,8 @@ namespace Client.Services
             }
             catch (Exception e)
             {
-                throw new CompletionException("Task could not be run, path to interpreter is wrong. More info: " + e.Message);
+                throw new CompletionException("Task could not be run, path to interpreter is wrong. More info: " +
+                                              e.Message);
             }
         }
 

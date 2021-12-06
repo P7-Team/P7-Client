@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+
 using System.Text;
 
 namespace Client.Services
@@ -8,10 +9,6 @@ namespace Client.Services
     public class ContentReader
     {
         private const int BUFFER_SIZE = 512;
-
-        public ContentReader(List<MultipartFormDataContent> multipartdatas)
-        {
-        }
 
         public static string ReadStreamContent(Stream contentStream)
         {
