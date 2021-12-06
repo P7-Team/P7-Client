@@ -4,9 +4,11 @@ namespace Client.Interfaces
 {
     public interface IHttpService
     {
-        HttpResponseMessage Send(HttpRequestMessage message);
-        HttpResponseMessage Get(string uri);
-        HttpResponseMessage Post(string uri, HttpContent content);
-        HttpResponseMessage Delete(string uri);
+        public HttpResponseMessage Send(HttpRequestMessage message);
+        public HttpResponseMessage Get(string uri);
+        public HttpResponseMessage Post(string uri, HttpContent content);
+        public HttpResponseMessage Delete(string uri);
+
+        public void SetToken(string token);
     }
 }

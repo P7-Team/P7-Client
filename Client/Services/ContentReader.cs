@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+
 using System.Text;
 
 namespace Client.Services
@@ -12,6 +13,7 @@ namespace Client.Services
         public ContentReader(List<MultipartFormDataContent> multipartdatas)
         {
         }
+
 
         public static string ReadStreamContent(Stream contentStream)
         {
