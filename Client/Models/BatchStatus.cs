@@ -5,20 +5,20 @@ using System.IO;
  
  public class BatchStatus 
     {
-    public bool Finished;
-    public int BatchID;
-    public int TotalTasks;
-    public int TasksDone;
-    public string[] Files; 
+    public bool Finished { get; set; }
+    public int Total { get; set; }
+    public int TasksDone { get; set; }
+    public int Id { get; set; }
+    public List <string> Files { get; set; }
 
 
-        public BatchStatus(bool _finished, int _batchID, int _totalTasks, int _tasksDone, string[] _files)
+    public BatchStatus( bool finished, int tasksDone, int total,int id)
         {
-            this.Finished = _finished;
-            this.BatchID = _batchID; 
-            this.TotalTasks = _totalTasks; 
-            this.TasksDone = _tasksDone;
-            this.Files = _files; 
+        Id = id;
+        Finished = finished;
+        TasksDone = tasksDone;
+        Total = total;
+        Files = new List<string>();
         }
 
     }

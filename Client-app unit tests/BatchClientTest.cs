@@ -3,27 +3,25 @@ using Client.Interfaces;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Client_app
 {
     public class BatchClientTest
     {
+        
         private class TestHttpService : IHttpService
         {
-            private bool _finished;
-            private string _batchID;
-            private string _files; 
-            private HttpStatusCode _statusCode;
-
-            public TestHttpService( bool finenhed ,string batchID, string files, HttpStatusCode statusCode)
+            private HttpStatusCode _statusCode { get; set; }
+           
+            public TestHttpService(HttpStatusCode statusCode)
             {
-                _finished = finenhed;
-                _batchID = batchID;
-                _files = files; 
+
                 _statusCode = statusCode;
             }
 
@@ -32,29 +30,50 @@ namespace Client_app
             {
                 HttpResponseMessage responseMessage = new HttpResponseMessage();
 
-                if (_finished)
+                if (uri.EndsWith("result"))
                 {
-                    if (_files == "filename")
-                    {
-                        string[] fileID = { "filepath1+filename1", "filepath2+filename2" };
+                    MemoryStream stringAsStream = new MemoryStream();
+                    StreamWriter streamData = new StreamWriter(stringAsStream, UnicodeEncoding.UTF8);
+                    streamData.Write("this is data in result of one bacth");
+                    stringAsStream.Position = 0L;
+                    responseMessage.Content = new StringContent(streamData.ToString());
+                }
 
+                if (uri.EndsWith("status"))
+                {
+                    if (_statusCode == HttpStatusCode.OK) 
+                    { 
+                    BatchStatus batchStatus = new BatchStatus(true, 1, 5, 10);
+                    BatchStatus batchStatus1 = new BatchStatus(false, 2, 1, 2);
+                    BatchStatus batchStatus2 = new BatchStatus(true, 3, 2, 2);
+                    BatchStatus batchStatus3 = new BatchStatus(false, 4, 3, 5);
 
-                        string json = JsonConvert.SerializeObject(fileID, Formatting.Indented);
+                    batchStatus.Files.Add("testFile");
+                    batchStatus2.Files.Add("testFile1");
+                    batchStatus2.Files.Add("testFile2");
 
-                        responseMessage.Content = new StringContent(json);
+                    List<BatchStatus> TestbatchStatuses = new List<BatchStatus>();
+                    TestbatchStatuses.Add(batchStatus);
+                    TestbatchStatuses.Add(batchStatus1);
+                    TestbatchStatuses.Add(batchStatus2);
+                    TestbatchStatuses.Add(batchStatus3);
+
+                    string json = JsonConvert.SerializeObject(TestbatchStatuses, Formatting.Indented);
+                    responseMessage.Content = new StringContent(json);
                     }
                     else
                     {
                         responseMessage.Content = new StringContent("");
                     }
-
                 }
-                responseMessage.StatusCode = _statusCode;
-                return responseMessage; 
+                
+
+                return responseMessage;
             }
 
 
-                public HttpResponseMessage Send(HttpRequestMessage message)
+
+            public HttpResponseMessage Send(HttpRequestMessage message)
             {
                 throw new NotImplementedException();
             }
@@ -70,16 +89,51 @@ namespace Client_app
             }
         }
         [Fact]
-        public void ResultOfBatch_RequestAnsweredWithTask()
+        public Task GetFileRuns()
         {
-            string[] files = { "testfile1", "testfile2" };
-            IHttpService testHttpService = new TestHttpService(true, "somefiles","testfiles", HttpStatusCode.OK);
+            IHttpService testHttpService = new TestHttpService(HttpStatusCode.OK);
+            BatchClient client = new BatchClient(testHttpService);
+
+            Task response = client.SaveBatchResultAsync("path","filename");
+
+            Assert.NotNull(response);
+            return Task.CompletedTask;
+        }
+
+
+        [Fact]
+        public void GetBatcesStattusReady()
+        {
+            IHttpService testHttpService = new TestHttpService(HttpStatusCode.OK);
             BatchClient client = new BatchClient(testHttpService);
 
             List<BatchStatus> response = client.GetBatchStatus();
+            Assert.True(response.Count >0);
+            Assert.IsType<BatchStatus>(response[0]);
+        }
 
+        [Fact]
+        public void GetBatchEnsureDiffence()
+        {
+            IHttpService testHttpService = new TestHttpService(HttpStatusCode.OK);
+            BatchClient client = new BatchClient(testHttpService);
+
+            List<BatchStatus> response = client.GetBatchStatus();
             Assert.NotNull(response);
-            Assert.IsType<BatchStatus>(response);
+            Assert.NotSame(response[0], response[1]);
+            Assert.NotSame(response[1], response[2]);
+            Assert.NotSame(response[2], response[3]);
+        }
+
+        [Fact]
+        public void GetBatcesStattusContiaFourBathes()
+        {
+            IHttpService testHttpService = new TestHttpService(HttpStatusCode.OK);
+            BatchClient client = new BatchClient(testHttpService);
+            List<BatchStatus> response = client.GetBatchStatus();
+
+            Assert.True(response.Count == 4 );
+
         }
     }
 }

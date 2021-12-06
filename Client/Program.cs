@@ -14,12 +14,6 @@ namespace Client
 
         static async Task Main(string[] args)
         {
-            IHttpService httpService = new HttpService("http://127.0.0.1:5000/","True");
-            BatchClient bob = new BatchClient(httpService);
-            //bob.GetBatchStatus();
-             bob.GetResult();
-            
-            Console.Read(); 
         }
     }
 }

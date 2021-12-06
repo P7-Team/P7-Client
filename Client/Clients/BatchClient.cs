@@ -2,27 +2,25 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using Client.Interfaces;
-using Client.Models;
-using Client.Services;
 using Newtonsoft.Json;
 using System.IO;
-using Task = Client.Models.Task;
-using Microsoft.AspNetCore.WebUtilities;
-using System.Net;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Client.Clients
 {
     public class BatchClient
     {
-        public static Stream GenerateStreamFromString(string s)
+        private List<BatchStatus> _batchStatuslist = new List<BatchStatus>();
+        private IHttpService _service;
+        static readonly HttpClient client = new HttpClient();
+
+        public BatchClient(IHttpService service)
         {
-            var stream = new MemoryStream();
-            var writer = new StreamWriter(stream);
-            writer.Write(s);
-            writer.Flush();
-            stream.Position = 0;
-            return stream;
+            _service = service;
         }
+
         public void CopyStreamToFile(Stream stream, string destPath)
         {
             using (var fileStream = new FileStream(destPath, FileMode.Create, FileAccess.Write))
@@ -31,94 +29,108 @@ namespace Client.Clients
                 fileStream.Dispose();
             }
         }
-
-
-        List<BatchStatus> BatchStatuslist = new List<BatchStatus> { };
-       
-        private IHttpService _service;
-        public BatchClient(IHttpService service)
+        public async Task SaveBatchResultAsync(string patchToSavefiles, string file)
         {
-            _service = service;
+            try
+            {
+              
+                HttpResponseMessage response = _service.Get("api/batch/result/" + file);
+
+                if (response.IsSuccessStatusCode && response.Content != null )
+                {
+
+                    try
+                    {
+                        Stream filecontent = await response.Content.ReadAsStreamAsync();
+
+                        if (Directory.Exists(patchToSavefiles))
+                        {
+                            string path = patchToSavefiles + "//" + file;
+                            CopyStreamToFile(filecontent, path);
+                        }
+                    }
+                    catch (UnauthorizedAccessException e)
+                    {
+                        Console.WriteLine("\nException Caught!");
+                        Console.WriteLine("Message :{0} ", e.Message);
+                        throw e;
+                    }
+                    catch (IOException IOE)
+                    {
+                        Console.WriteLine("\nException Caught!");
+                        Console.WriteLine("Message :{0} ", IOE.Message);
+                        throw IOE;
+                    }
+                    catch (ArgumentNullException Anull)
+                    {
+                        Console.WriteLine("\nException Caught!");
+                        Console.WriteLine("Message :{0} ", Anull.Message);
+                        throw Anull;
+                    }
+                }
+
+            }
+            catch (HttpRequestException e)
+            {
+                Console.WriteLine("\nException Caught!");
+                Console.WriteLine("Message :{0} ", e.Message);
+                Console.Read();
+            }
+        
+
         }
 
-        static readonly HttpClient client = new HttpClient();
         public List<BatchStatus> GetBatchStatus()
         {
-            // send get to http/batch/status:  
-            HttpResponseMessage response = _service.Get("http://localhost:5000/api/batch/status");
+            try
+            {
+                HttpResponseMessage response = _service.Get("/api/batch/status");
 
-            //  If resice a success resonse 
-            if (response.IsSuccessStatusCode)
-            {
-                try
+                //  If resice a success resonse 
+                if (response.IsSuccessStatusCode && response.Content != null )
                 {
-                    BatchStatuslist = JsonConvert.DeserializeObject<List<BatchStatus>>(response.Content.ReadAsStringAsync().Result);
+                    try
+                    {
+                        _batchStatuslist = JsonConvert.DeserializeObject<List<BatchStatus>>(response.Content.ReadAsStringAsync().Result);
+                    }
+                    catch (ArgumentNullException e)
+                    {
+                        Console.WriteLine(" Something when wrong with downloading Batches Status list ", e);
+                        throw e; 
+                    }
+                    return _batchStatuslist;
                 }
-                catch (ArgumentNullException e)
+                else
                 {
-                    Console.WriteLine(".something wrong with BatchStatuslist ", e);
+                    Console.WriteLine("BatchesStatus could not be Received from a server");
+                    return _batchStatuslist;
                 }
-                return BatchStatuslist;
             }
-            else
+            catch (HttpRequestException ex)
             {
-                Console.WriteLine("BatchesStatus could not be Received from a server");
-                return BatchStatuslist;
+                Console.WriteLine("\nException Caught!");
+                Console.WriteLine("Message :{0} ", ex.Message);
+                throw ex; 
             }
         }
 
-
-        public async void GetResult()
-        {
-            List<BatchStatus> Result = GetBatchStatus();
-            string[] patharrays = { "C:\\Test2\\cake1.txt", "C:\\Test2\\cake1.txt" };
-            BatchStatus _bacth1 = new BatchStatus(true, 1, 10, 1, patharrays);  
-            //BatchStatus _bacth2 = new BatchStatus(true, 1, 10, 1, "C:\\Test2\\cake2.txt");
-            //BatchStatus _bacth3 = new BatchStatus(true, 1, 10, 1, "C:\\Test2\\cake4.txt");
-            Result.Add(_bacth1);
-            // Result.Add(_bacth2);
-            // Result.Add(_bacth3);
-
-            int resultlength = Result.Count;
-
-            if (resultlength > 0)
+        public async void GetResult(string patchToSavefiles)
             {
-                foreach (BatchStatus _batchstatus in Result)
+
+                List<BatchStatus> Result = GetBatchStatus();
+                if (Result.Count > 0)
                 {
-
-                    if (_batchstatus.Finished)
+                    foreach (BatchStatus _batchstatus in Result)
                     {
-                        for (int i = 0; i < _batchstatus.Files.Length; i++)
+                        if (_batchstatus.Finished && _batchstatus.Files.Count > 0)
                         {
-                            string File = _batchstatus.Files[i];
-                            
-                            try
-
+                            foreach (string File in _batchstatus.Files)
                             {
-                                HttpResponseMessage response = _service.Get("http://localhost:5000/api/batch/{File}");
-
-                                if (response.IsSuccessStatusCode)
-                                {
-                                    Stream filecontent = await response.Content.ReadAsStreamAsync();
-                                    string path = "C:\\Test2\\{[i]} out of{_batchstatus.TotalTasks} ";
-                                    CopyStreamToFile(filecontent, path);
-                                }
-
-                                Console.Read();
-                            }
-                            catch (HttpRequestException e)
-                            {
-                                Console.WriteLine("\nException Caught!");
-                                Console.WriteLine("Message :{0} ", e.Message);
-                                Console.Read();
+                                await SaveBatchResultAsync(patchToSavefiles, File);
                             }
                         }
-                        // var response = await _service.GetAsync(http://localhost:5000/api/batch/result);
-                       
                     }
                 }
             }
-
         }
     }
-}
