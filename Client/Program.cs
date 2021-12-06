@@ -22,7 +22,6 @@ namespace Client
             
             ClientStateManager clientStateManager = new ClientStateManager(httpService);
             clientStateManager.Run();
-
         }
     }
 }

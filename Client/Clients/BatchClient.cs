@@ -12,6 +12,7 @@ using Client.Models;
 using Task = System.Threading.Tasks.Task;
 using Client.Services;
 
+
 namespace Client.Clients
 {
     public class BatchClient : IBatchClient
@@ -82,7 +83,6 @@ namespace Client.Clients
                 Console.Read();
             }
 
-
         }
 
         public bool AddBatch(Batch batch)
@@ -112,7 +112,34 @@ namespace Client.Clients
             return response.IsSuccessStatusCode;
         }
 
-        public List<BatchStatus> GetBatchStatus()
+        public bool AddBatch(Batch batch)
+        {
+            Dictionary<string, string> formdata = new Dictionary<string, string>()
+            {
+                {"id", batch.Id},
+                {"language", batch.Language}
+            };
+
+            Dictionary<string, Stream> files = new Dictionary<string, Stream>()
+            {
+                {"source", batch.Source.Data}
+            };
+
+            for (int i = 0; i < batch.Inputs.Count; i++)
+            {
+                files.Add(batch.Inputs[i].Name, batch.Inputs[i].Data);
+                string encoding = "encoding" + batch.Inputs[i].Name;
+                formdata.Add(encoding, batch.Inputs[i].Enc.BodyName);
+            }
+
+            MultipartContent content = MultipartFormDataHelper.CreateContent(formdata, files);
+
+            HttpResponseMessage response = _service.Post("/api/batch", content);
+
+            return response.IsSuccessStatusCode;
+        }
+
+        public IEnumerable<BatchStatus> GetBatchStatus()
         {
 
             try
@@ -147,6 +174,7 @@ namespace Client.Clients
                 throw ex;
             }
         }
+
 
         public async void GetResult(List<BatchStatus> Result, string patchToSavefiles)
         {

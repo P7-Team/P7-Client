@@ -10,11 +10,6 @@ namespace Client.Services
     {
         private const int BUFFER_SIZE = 512;
 
-        public ContentReader(List<MultipartFormDataContent> multipartdatas)
-        {
-        }
-
-
         public static string ReadStreamContent(Stream contentStream)
         {
             return ReadStreamContent(contentStream, Encoding.UTF8);
