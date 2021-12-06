@@ -80,7 +80,6 @@ namespace Client.Clients
             {
                 Console.WriteLine("\nException Caught!");
                 Console.WriteLine("Message :{0} ", e.Message);
-                Console.Read();
             }
 
         }
