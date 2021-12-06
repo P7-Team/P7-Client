@@ -51,7 +51,7 @@ namespace Client.Clients
 
                         if (Directory.Exists(patchToSavefiles))
                         {
-                            string path = patchToSavefiles + "//" + file;
+                            string path = patchToSavefiles + Path.DirectorySeparatorChar + file;
                             CopyStreamToFile(filecontent, path);
                         }
                     }
