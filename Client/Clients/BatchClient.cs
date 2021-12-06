@@ -28,7 +28,7 @@ namespace Client.Clients
 
         public void CopyStreamToFile(Stream stream, string destPath)
         {
-            using (var fileStream = new FileStream(destPath, FileMode.Create, FileAccess.Write))
+            using (FileStream fileStream = new FileStream(destPath, FileMode.Create, FileAccess.Write))
             {
                 stream.CopyTo(fileStream);
                 fileStream.Dispose();
