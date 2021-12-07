@@ -31,7 +31,6 @@ namespace Client.Clients
             using (FileStream fileStream = new FileStream(destPath, FileMode.Create, FileAccess.Write))
             {
                 stream.CopyTo(fileStream);
-                fileStream.Dispose();
             }
         }
 
