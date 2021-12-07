@@ -9,7 +9,6 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
-using Client.Clients;
 
 namespace Client_app
 {
