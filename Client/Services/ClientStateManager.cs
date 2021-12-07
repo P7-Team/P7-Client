@@ -70,14 +70,10 @@ namespace Client.Services
         /// </summary>
         private void BatchThreadHandler()
         {
-            // TODO: This should loop like the other handlers. If the user has no uploaded Batches, it should not loop until the user has uploaded a Batch. 
-            if (!_batchClient.GetResult())
-            {
-                return;
-            }
+
 
             // TODO: Should be a list of batch statuses, not a list of batches
-            List<Batch> batches = (List<Batch>) _batchClient.GetBatchStatus();
+            List<BatchStatus> batches = _batchClient.GetBatchStatus();
             // TODO handle downloaded batches.
             if (batches.Count > 0)
             {
