@@ -73,7 +73,7 @@ namespace Client.Services
 
 
             // TODO: Should be a list of batch statuses, not a list of batches
-            List<BatchStatus> batches = (List<BatchStatus>) _batchClient.GetBatchStatus();
+            List<BatchStatus> batches = _batchClient.GetBatchStatus();
             // TODO handle downloaded batches.
             if (batches.Count > 0)
             {

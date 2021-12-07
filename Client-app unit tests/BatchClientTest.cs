@@ -105,9 +105,9 @@ namespace Client_app
             return Task.CompletedTask;
         }
 
-
+        //<Tested Method>_(Optional)<Precondition>_<Expected Result>
         [Fact]
-        public void GetBatcesStattusReady()
+        public void GetBatces_BatchesIsAvailable_BatchesReceived()
         {
             IHttpService testHttpService = new TestHttpService(HttpStatusCode.OK);
             BatchClient client = new BatchClient(testHttpService);
@@ -118,7 +118,7 @@ namespace Client_app
         }
 
         [Fact]
-        public void GetBatchEnsureDifference()
+        public void GetBatch_EnsureFourDifferent()
         {
             IHttpService testHttpService = new TestHttpService(HttpStatusCode.OK);
             BatchClient client = new BatchClient(testHttpService);
@@ -131,7 +131,7 @@ namespace Client_app
         }
 
         [Fact]
-        public void GetBatchesStatusContiaFourBatches()
+        public void GetBatchesStatus_ResponsContainsFourBatches()
         {
             IHttpService testHttpService = new TestHttpService(HttpStatusCode.OK);
             BatchClient client = new BatchClient(testHttpService);

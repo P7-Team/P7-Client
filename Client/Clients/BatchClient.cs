@@ -32,7 +32,7 @@ namespace Client.Clients
             }
         }
 
-        public async Task SaveBatchResultAsync(string patchToSavefiles, string file)
+        public async Task<bool> SaveBatchResultAsync(string patchToSavefiles, string file)
         {
             try
             {
@@ -50,26 +50,23 @@ namespace Client.Clients
                         {
                             string path = patchToSavefiles + Path.DirectorySeparatorChar + file;
                             CopyStreamToFile(filecontent, path);
+                            return true; 
+                        }
+                        else
+                        {
+                            return false; 
                         }
                     }
-                    catch (UnauthorizedAccessException e)
+                    catch (Exception e)
                     {
                         Console.WriteLine("\nException Caught!");
                         Console.WriteLine("Message :{0} ", e.Message);
-                        throw e;
+                        return false; 
                     }
-                    catch (IOException IOE)
-                    {
-                        Console.WriteLine("\nException Caught!");
-                        Console.WriteLine("Message :{0} ", IOE.Message);
-                        throw IOE;
-                    }
-                    catch (ArgumentNullException Anull)
-                    {
-                        Console.WriteLine("\nException Caught!");
-                        Console.WriteLine("Message :{0} ", Anull.Message);
-                        throw Anull;
-                    }
+                }
+                else
+                {
+                    return false; 
                 }
 
             }
@@ -77,6 +74,7 @@ namespace Client.Clients
             {
                 Console.WriteLine("\nException Caught!");
                 Console.WriteLine("Message :{0} ", e.Message);
+                return false; 
             }
 
         }
@@ -145,20 +143,26 @@ namespace Client.Clients
         }
 
 
-        public async void GetResult(List<BatchStatus> Result, string patchToSavefiles)
+        public async Task<bool> GetResult(List<BatchStatus> Result, string patchToSavefiles)
         {
             if (Result.Count > 0)
             {
-                foreach (BatchStatus _batchstatus in Result)
+                foreach (BatchStatus batchstatus in Result)
                 {
-                    if (_batchstatus.Finished && _batchstatus.Files.Count > 0)
+                    if (batchstatus.Finished && batchstatus.Files.Count > 0)
                     {
-                        foreach (string File in _batchstatus.Files)
+                        foreach (string File in batchstatus.Files)
                         {
                             await SaveBatchResultAsync(patchToSavefiles, File);
                         }
+                       
                     }
                 }
+                return true;
+            }
+            else
+            {
+                return false; 
             }
         }
     }
