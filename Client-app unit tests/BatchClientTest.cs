@@ -131,7 +131,7 @@ namespace Client_app
         }
 
         [Fact]
-        public void GetBatcesStattusContiaFourBathes()
+        public void GetBatchesStatusContiaFourBatches()
         {
             IHttpService testHttpService = new TestHttpService(HttpStatusCode.OK);
             BatchClient client = new BatchClient(testHttpService);
