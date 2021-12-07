@@ -5,7 +5,6 @@ using System.Net.Http;
 using Client.Interfaces;
 using Newtonsoft.Json;
 using System.IO;
-using System.IO;
 using System.Threading.Tasks;
 using Client.Models;
 using Task = System.Threading.Tasks.Task;
