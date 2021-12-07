@@ -118,7 +118,7 @@ namespace Client_app
         }
 
         [Fact]
-        public void GetBatchEnsureDiffence()
+        public void GetBatchEnsureDifference()
         {
             IHttpService testHttpService = new TestHttpService(HttpStatusCode.OK);
             BatchClient client = new BatchClient(testHttpService);
