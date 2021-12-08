@@ -7,7 +7,7 @@ namespace Client.Services
     public class MultipartFormDataHelper
     {
         public static MultipartFormDataContent CreateContent(IDictionary<string, string> formdata,
-            IDictionary<string, Stream> files)
+            IEnumerable<KeyValuePair<string, Stream>> files)
         {
             MultipartFormDataContent content = new MultipartFormDataContent();
 

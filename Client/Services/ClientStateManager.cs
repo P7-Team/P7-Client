@@ -103,7 +103,7 @@ namespace Client.Services
         /// Handles the downloading of completed tasks.
         /// </summary>
         private void BatchThreadHandler()
-        {
+        {/*
             while (!_shutdown)
             {
                 while (_fetchingBatches)
@@ -128,7 +128,7 @@ namespace Client.Services
                 }
 
                 TrySleep(Timeout.InfiniteTimeSpan);
-            }
+            }*/
         }
 
         private bool TrySleep(TimeSpan duration)
