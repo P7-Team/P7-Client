@@ -2,6 +2,8 @@ using System;
 using System.Data;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Client.Interfaces;
@@ -38,6 +40,7 @@ namespace Client.Services
             _client.BaseAddress = new Uri(ip);
             if (token == "") return;
             _client.DefaultRequestHeaders.Add("Authorization", token);
+            _client.DefaultRequestHeaders.Add("Content-Type", MediaTypeNames.Application.Json);
         }
 
         /// <summary>

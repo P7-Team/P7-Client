@@ -16,9 +16,8 @@ namespace Client.Clients
 {
     public class BatchClient : IBatchClient
     {
-        private List<BatchStatus> _batchStatuslist = new List<BatchStatus>();
-        private IHttpService _service;
-        static readonly HttpClient client = new HttpClient();
+        // private List<BatchStatus> _batchStatusList = new List<BatchStatus>();
+        private readonly IHttpService _service;
 
         public BatchClient(IHttpService service)
         {
@@ -33,24 +32,24 @@ namespace Client.Clients
             }
         }
 
-        public async Task<bool> SaveBatchResultAsync(string patchToSavefiles, string file)
+        public async Task<bool> SaveBatchResultAsync(string pathToSaveFiles, string file)
         {
             try
             {
 
-                HttpResponseMessage response = _service.Get("api/batch/result/" + file);
+                HttpResponseMessage response = _service.Get("api/fileDownload/" + file);
 
                 if (response.IsSuccessStatusCode && response.Content != null)
                 {
 
                     try
                     {
-                        Stream filecontent = await response.Content.ReadAsStreamAsync();
+                        Stream fileContent = await response.Content.ReadAsStreamAsync();
 
-                        if (Directory.Exists(patchToSavefiles))
+                        if (Directory.Exists(pathToSaveFiles))
                         {
-                            string path = patchToSavefiles + Path.DirectorySeparatorChar + file;
-                            CopyStreamToFile(filecontent, path);
+                            string path = pathToSaveFiles + Path.DirectorySeparatorChar + file;
+                            CopyStreamToFile(fileContent, path);
                             return true; 
                         }
                         else
@@ -82,7 +81,7 @@ namespace Client.Clients
 
         public bool AddBatch(Batch batch)
         {
-            Dictionary<string, string> formdata = new Dictionary<string, string>()
+            Dictionary<string, string> formData = new Dictionary<string, string>()
             {
                 {"ExecutableLanguage", batch.Language}
             };
@@ -98,7 +97,7 @@ namespace Client.Clients
                 //formdata.Add(encoding, batch.Inputs[i].Enc.BodyName);
             }
 
-            MultipartContent content = MultipartFormDataHelper.CreateContent(formdata, files);
+            MultipartContent content = MultipartFormDataHelper.CreateContent(formData, files);
 
             HttpResponseMessage response = _service.Post("/api/batch", content);
 

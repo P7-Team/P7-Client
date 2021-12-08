@@ -6,13 +6,19 @@ namespace Client.Models
 {
     public class CompletedTask
     {
-        public long Id { get; }
+        public string Id { get; }
+        
+        public string Number { get; }
+        
+        public string SubNumber { get; }
 
         public Stream FileStream { get; }
 
-        public CompletedTask(long id, Stream fileStream)
+        public CompletedTask(string id, string number, string subNumber, Stream fileStream)
         {
             Id = id;
+            Number = number;
+            SubNumber = subNumber;
             FileStream = fileStream;
         }
     }

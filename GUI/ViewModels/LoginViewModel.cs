@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Security;
+using System.Text;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Navigation;
@@ -65,7 +66,9 @@ namespace GUI.ViewModels
             {
                 try
                 {
-                    HttpService.GetHttpService().SetToken(token);
+                    var bytesArray = Encoding.UTF8.GetBytes(token);
+                    var base64String = Convert.ToBase64String(bytesArray);
+                    // HttpService.GetHttpService().SetToken(base64String);
                     LoggedIn = true;
                 }
                 catch
@@ -73,8 +76,6 @@ namespace GUI.ViewModels
                     // Something
                 }
             }
-
-            LoggedIn = true;
         }
     }
 }

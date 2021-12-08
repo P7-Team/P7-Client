@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Threading;
 using Client.Clients;
 using Client.Interfaces;
@@ -103,32 +105,32 @@ namespace Client.Services
         /// Handles the downloading of completed tasks.
         /// </summary>
         private void BatchThreadHandler()
-        {/*
-            while (!_shutdown)
-            {
-                while (_fetchingBatches)
-                {
-                    // TODO: This should loop like the other handlers. If the user has no uploaded Batches, it should not loop until the user has uploaded a Batch. 
-                    if (!_batchClient.GetResult())
-                    {
-                        return;
-                    }
-
-                    // TODO: Should be a list of batch statuses, not a list of batches
-                    List<Batch> batches = (List<Batch>) _batchClient.GetBatchStatus();
-                    // TODO handle downloaded batches.
-                    if (batches.Count > 0)
-                    {
-                    }
-                    
-                    if (!TrySleep(BatchTimeout))
-                    {
-                        break;
-                    }
-                }
-
-                TrySleep(Timeout.InfiniteTimeSpan);
-            }*/
+        {
+            // while (!_shutdown)
+            // {
+            //     while (_fetchingBatches)
+            //     {
+            //         // TODO: This should loop like the other handlers. If the user has no uploaded Batches, it should not loop until the user has uploaded a Batch. 
+            //         if (!_batchClient.GetResult())
+            //         {
+            //             return;
+            //         }
+            //
+            //         // TODO: Should be a list of batch statuses, not a list of batches
+            //         List<Batch> batches = (List<Batch>) _batchClient.GetBatchStatus();
+            //         // TODO handle downloaded batches.
+            //         if (batches.Count > 0)
+            //         {
+            //         }
+            //         
+            //         if (!TrySleep(BatchTimeout))
+            //         {
+            //             break;
+            //         }
+            //     }
+            //
+            //     TrySleep(Timeout.InfiniteTimeSpan);
+            // }
         }
 
         private bool TrySleep(TimeSpan duration)
@@ -192,7 +194,8 @@ namespace Client.Services
             {
                 while (_working)
                 {
-                    _currentTask = _taskClient.GetTask();
+                    _currentTask = _taskClient.GetTask(_config["WorkingDirectory"]).Result;
+
                     Console.WriteLine("I just asked for a task");
                     if (_currentTask != null)
                     {
@@ -211,23 +214,29 @@ namespace Client.Services
                         interpretedTaskCompleter.Run();
                     
                         _status = Status.Done;
-                    
-                        // TODO: The result of the Task should be sent to the service
+
+                        Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(interpretedTaskCompleter.GetResult()));
+
+                        CompletedTask completedTask = new CompletedTask(_currentTask.Id, _currentTask.Number, _currentTask.SubNumber, stream);
+
+                        _taskClient.AddResult(completedTask);
 
                         // Exits the heartbeat thread
                         _heartbearting = false;
                         _heartBeatThread.Interrupt();
 
                         // Sends the done message, and ensures it is received
-                        bool response = false;
+                        bool response;
                         do
                         {
-                            if (!TrySleep(HeartbeatTimeout))
+                            response = _heartbeatClient.SendHeartbeatDone();
+
+                            if (response) continue;
+                            
+                            if (!TrySleep(TaskTimeout))
                             {
                                 break;
                             }
-                            
-                            response = _heartbeatClient.SendHeartbeatDone();
                         } while (!response);
                         
                         // Resets the current task to null
