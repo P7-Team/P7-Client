@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Client.Models;
 
 namespace Client.Interfaces
@@ -7,8 +8,8 @@ namespace Client.Interfaces
     {
         public bool AddBatch(Batch batch);
         
-        public IEnumerable<Batch> GetBatchStatus();
+        public List<BatchStatus> GetBatchStatus();
 
-        public bool GetResult();
+        public Task<bool> GetResult(List<BatchStatus> Result, string patchToSavefiles);
     }
 }
