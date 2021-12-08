@@ -45,18 +45,12 @@
                     
                     <Button Content="Add Project" Click="CreateRequest"></Button>
                     
-                    <ItemsControl x:Name="BatchStack" ItemsSource="{Binding Path=MyBatchesList}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Vertical"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text=""></TextBlock>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                    <ItemsControl x:Name="BatchStack" ItemsSource="{Binding Path=MyBatchesList}" HorizontalAlignment="Center"/>
+                    
+                    <Button Content="Save Results" 
+                            IsEnabled="{Binding Path=ResultsAreReady}"
+                            Command="{Binding Path=SaveResultsCommand}"/>
+                    
                 </StackPanel>
             </Grid>
         </Grid>

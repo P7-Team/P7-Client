@@ -24,6 +24,100 @@ namespace Client.Clients
             _service = service;
         }
 
+        
+
+        public bool AddBatch(Batch batch)
+        {
+            Dictionary<string, string> formData = new Dictionary<string, string>()
+            {
+                {"ExecutableLanguage", batch.Language}
+            };
+
+            ICollection<KeyValuePair<string, Stream>> files = new List<KeyValuePair<string, Stream>>()
+            {
+                new KeyValuePair<string, Stream>("Executable", batch.Source.Data)
+            };
+
+            for (int i = 0; i < batch.Inputs.Count; i++)
+            {
+                files.Add(new KeyValuePair<string, Stream>("Input", batch.Inputs[i].Data));
+                //formdata.Add(encoding, batch.Inputs[i].Enc.BodyName);
+            }
+
+            MultipartContent content = MultipartFormDataHelper.CreateContent(formData, files);
+
+            HttpResponseMessage response = _service.Post("api/batch", content);
+
+            return response.IsSuccessStatusCode;
+        }
+
+        public List<BatchStatus> GetBatchStatus()
+        {
+
+            try
+            {
+                HttpResponseMessage response = _service.Get("api/batch/status");
+                List<BatchStatus> _batchStatuslist=  new List<BatchStatus>(); 
+
+                //  If resice a success resonse 
+                if (response.IsSuccessStatusCode && response.Content != null)
+                {
+                    try
+                    {
+                        _batchStatuslist = JsonConvert.DeserializeObject<List<BatchStatus>>(response.Content.ReadAsStringAsync().Result);
+                    }
+                    catch (ArgumentNullException e)
+                    {
+                        Console.WriteLine(" Something when wrong with downloading Batches Status list ", e);
+                        throw e;
+                    }
+                    return _batchStatuslist;
+                }
+                else
+                {
+                    Console.WriteLine("BatchesStatus could not be Received from a server");
+                    return _batchStatuslist;
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine("\nException Caught!");
+                Console.WriteLine("Message :{0} ", ex.Message);
+                throw ex;
+            }
+        }
+
+
+        public async Task<bool> GetResult(List<BatchStatus> statusList, string pathToSaveFiles)
+        {
+            List<BatchStatus> graveyard = new List<BatchStatus>();
+            if (statusList.Count > 0)
+            {
+                foreach (BatchStatus batchStatus in statusList)
+                {
+                    if (batchStatus.Finished && batchStatus.Files.Count > 0)
+                    {
+                        foreach (string File in batchStatus.Files)
+                        {
+                            await SaveBatchResultAsync(pathToSaveFiles, File);
+                            graveyard.Add(batchStatus);
+                        }
+                       
+                    }
+                }
+
+                foreach (BatchStatus rip in graveyard)
+                {
+                    statusList.Remove(rip);
+                }
+                return true;
+            }
+            else
+            {
+                return false; 
+            }
+        }
+        
         public void CopyStreamToFile(Stream stream, string destPath)
         {
             using (FileStream fileStream = new FileStream(destPath, FileMode.Create, FileAccess.Write))
@@ -77,91 +171,6 @@ namespace Client.Clients
                 return false; 
             }
 
-        }
-
-        public bool AddBatch(Batch batch)
-        {
-            Dictionary<string, string> formData = new Dictionary<string, string>()
-            {
-                {"ExecutableLanguage", batch.Language}
-            };
-
-            ICollection<KeyValuePair<string, Stream>> files = new List<KeyValuePair<string, Stream>>();
-            {
-                new KeyValuePair<string, Stream>("Executable", batch.Source.Data);
-            };
-
-            for (int i = 0; i < batch.Inputs.Count; i++)
-            {
-                files.Add(new KeyValuePair<string, Stream>("Input", batch.Inputs[i].Data));
-                //formdata.Add(encoding, batch.Inputs[i].Enc.BodyName);
-            }
-
-            MultipartContent content = MultipartFormDataHelper.CreateContent(formData, files);
-
-            HttpResponseMessage response = _service.Post("/api/batch", content);
-
-            return response.IsSuccessStatusCode;
-        }
-
-        public List<BatchStatus> GetBatchStatus()
-        {
-
-            try
-            {
-                HttpResponseMessage response = _service.Get("/api/batch/status");
-                List<BatchStatus> _batchStatuslist=  new List<BatchStatus>(); 
-
-                //  If resice a success resonse 
-                if (response.IsSuccessStatusCode && response.Content != null)
-                {
-                    try
-                    {
-                        _batchStatuslist = JsonConvert.DeserializeObject<List<BatchStatus>>(response.Content.ReadAsStringAsync().Result);
-                    }
-                    catch (ArgumentNullException e)
-                    {
-                        Console.WriteLine(" Something when wrong with downloading Batches Status list ", e);
-                        throw e;
-                    }
-                    return _batchStatuslist;
-                }
-                else
-                {
-                    Console.WriteLine("BatchesStatus could not be Received from a server");
-                    return _batchStatuslist;
-                }
-            }
-            catch (HttpRequestException ex)
-            {
-                Console.WriteLine("\nException Caught!");
-                Console.WriteLine("Message :{0} ", ex.Message);
-                throw ex;
-            }
-        }
-
-
-        public async Task<bool> GetResult(List<BatchStatus> Result, string patchToSavefiles)
-        {
-            if (Result.Count > 0)
-            {
-                foreach (BatchStatus batchstatus in Result)
-                {
-                    if (batchstatus.Finished && batchstatus.Files.Count > 0)
-                    {
-                        foreach (string File in batchstatus.Files)
-                        {
-                            await SaveBatchResultAsync(patchToSavefiles, File);
-                        }
-                       
-                    }
-                }
-                return true;
-            }
-            else
-            {
-                return false; 
-            }
         }
     }
 }

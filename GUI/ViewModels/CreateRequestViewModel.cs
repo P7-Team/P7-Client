@@ -126,6 +126,7 @@ namespace GUI.ViewModels
                 BatchUploaded = true;
                 BatchNotUploaded = false;
                 UploadStatus = "Upload successful";
+                ClientStateManager.GetClientStateManager().StartFetchingBatches();
             }
             else
             {

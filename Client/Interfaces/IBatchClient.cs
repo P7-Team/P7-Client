@@ -10,6 +10,6 @@ namespace Client.Interfaces
         
         public List<BatchStatus> GetBatchStatus();
 
-        public Task<bool> GetResult(List<BatchStatus> Result, string patchToSavefiles);
+        public Task<bool> GetResult(List<BatchStatus> statusList, string pathToSaveFiles);
     }
 }

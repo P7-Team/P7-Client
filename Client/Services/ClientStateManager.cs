@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using Client.Clients;
@@ -29,10 +31,9 @@ namespace Client.Services
         private Thread _heartBeatThread;
         private Thread _taskThread;
         private Thread _batchThread;
-        private const int HeartbeatInMinutes = 5;
-        private readonly TimeSpan HeartbeatTimeout;
-        private readonly TimeSpan BatchTimeout;
-        private readonly TimeSpan TaskTimeout;
+        private readonly TimeSpan _heartbeatTimeout;
+        private readonly TimeSpan _batchTimeout;
+        private readonly TimeSpan _taskTimeout;
         private readonly Dictionary<string, string> _config;
         
         private bool _shutdown;
@@ -41,6 +42,7 @@ namespace Client.Services
         private bool _fetchingBatches;
 
         private Task _currentTask;
+        private List<BatchStatus> _batchStatusList;
 
         public static ClientStateManager GetClientStateManager()
         {
@@ -54,9 +56,12 @@ namespace Client.Services
             _batchClient = new BatchClient(httpService);
             _config = new ConfigManager().GetConfig();
             
-            HeartbeatTimeout = new TimeSpan(0, 5, 0);
-            BatchTimeout = new TimeSpan(0, 2, 0);
-            TaskTimeout = new TimeSpan(0, 0, 25);
+            _heartbeatTimeout = new TimeSpan(0, 5, 0);
+            _batchTimeout = new TimeSpan(0, 0, 2);
+            _taskTimeout = new TimeSpan(0, 0, 2);
+
+            // _batchStatusList = new List<BatchStatus> { new BatchStatus(false, 3, 7, 4) };
+            _batchStatusList = new List<BatchStatus>();
         }
 
         /// <summary>
@@ -106,31 +111,29 @@ namespace Client.Services
         /// </summary>
         private void BatchThreadHandler()
         {
-            // while (!_shutdown)
-            // {
-            //     while (_fetchingBatches)
-            //     {
-            //         // TODO: This should loop like the other handlers. If the user has no uploaded Batches, it should not loop until the user has uploaded a Batch. 
-            //         if (!_batchClient.GetResult())
-            //         {
-            //             return;
-            //         }
-            //
-            //         // TODO: Should be a list of batch statuses, not a list of batches
-            //         List<Batch> batches = (List<Batch>) _batchClient.GetBatchStatus();
-            //         // TODO handle downloaded batches.
-            //         if (batches.Count > 0)
-            //         {
-            //         }
-            //         
-            //         if (!TrySleep(BatchTimeout))
-            //         {
-            //             break;
-            //         }
-            //     }
-            //
-            //     TrySleep(Timeout.InfiniteTimeSpan);
-            // }
+            while (!_shutdown)
+            {
+                while (_fetchingBatches)
+                {
+                    Trace.WriteLine("Fetching batches at " + DateTime.Now.TimeOfDay);
+                    _batchStatusList = _batchClient.GetBatchStatus();
+                    
+                    RaiseFetchedBatch();
+                    
+                    if (_batchStatusList.All(x => x.Finished))
+                    {
+                        _fetchingBatches = false;
+                        break;
+                    }
+
+                    if (!TrySleep(_batchTimeout))
+                    {
+                        break;
+                    }
+                }
+                
+                TrySleep(Timeout.InfiniteTimeSpan);
+            }
         }
 
         private bool TrySleep(TimeSpan duration)
@@ -175,7 +178,7 @@ namespace Client.Services
                             throw new ArgumentOutOfRangeException();
                     }
 
-                    if (!TrySleep(HeartbeatTimeout))
+                    if (!TrySleep(_heartbeatTimeout))
                     {
                         break;
                     }
@@ -196,22 +199,27 @@ namespace Client.Services
                 {
                     _currentTask = _taskClient.GetTask(_config["WorkingDirectory"]).Result;
 
-                    Console.WriteLine("I just asked for a task");
+                    Trace.WriteLine("I just asked for a task");
                     if (_currentTask != null)
                     {
+                        Trace.WriteLine("Started working on task " + _currentTask.Id);
                         _status = Status.Working;
                     
                         // Initiates a heartbeat thread which sends heartbeats.
                         _heartbearting = true;
                         _heartBeatThread.Interrupt();
 
-                        // TODO: Task completer could be in its own thread
+                        _heartbeatClient.SendHeartbeatWorking();
+
+                        
                         
                         // Setup the task completer and run the task
                         IInterpretedTaskCompleter interpretedTaskCompleter =
                             new InterpretedTaskCompleter(_config["InterpreterPath"], _config["WorkingDirectory"],
                                 _currentTask.getSource());
+
                         interpretedTaskCompleter.Run();
+                        
                     
                         _status = Status.Done;
 
@@ -224,6 +232,8 @@ namespace Client.Services
                         // Exits the heartbeat thread
                         _heartbearting = false;
                         _heartBeatThread.Interrupt();
+                        
+                        _heartbeatClient.SendHeartbeatWorking();
 
                         // Sends the done message, and ensures it is received
                         bool response;
@@ -233,7 +243,7 @@ namespace Client.Services
 
                             if (response) continue;
                             
-                            if (!TrySleep(TaskTimeout))
+                            if (!TrySleep(_taskTimeout))
                             {
                                 break;
                             }
@@ -250,14 +260,14 @@ namespace Client.Services
                             break;
                         }
 
-                        if (!TrySleep(TaskTimeout))
+                        if (!TrySleep(_taskTimeout))
                         {
                             break;
                         }
                     }
                     else
                     {
-                        if (!TrySleep(TaskTimeout))
+                        if (!TrySleep(_taskTimeout))
                         {
                             break;
                         }
@@ -267,6 +277,12 @@ namespace Client.Services
 
                 TrySleep(Timeout.InfiniteTimeSpan);
             }
+        }
+
+        public void StartFetchingBatches()
+        {
+            _fetchingBatches = true;
+            _batchThread.Interrupt();
         }
         
         public void StartWorking()
@@ -289,6 +305,8 @@ namespace Client.Services
         
         public event Action FinishedWorking = delegate {  };
         public event Action StoppedWorking = delegate {  };
+        
+        public event Action FetchedBatch = delegate {  };
 
         private void RaiseStoppedWorking()
         {
@@ -300,9 +318,19 @@ namespace Client.Services
             FinishedWorking();
         }
 
+        private void RaiseFetchedBatch()
+        {
+            FetchedBatch();
+        }
+
         public Task GetCurrentTask()
         {
             return _currentTask;
+        }
+
+        public List<BatchStatus> GetBatchStatuses()
+        {
+            return _batchStatusList;
         }
     }
 }

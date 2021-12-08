@@ -31,9 +31,10 @@ namespace Client.Clients
             HttpContent content = new StringContent(UserToJson(username, password), Encoding.UTF8, "application/json");
             HttpResponseMessage httpResponseMessage = _httpService.Post("api/user/login", content);
 
+            // TODO: Use the username in the UI
             return !httpResponseMessage.IsSuccessStatusCode
                 ? ""
-                : JsonConvert.DeserializeObject<Dictionary<string, string>>(httpResponseMessage.Content.ReadAsStringAsync().Result)["key"] ;
+                : JsonConvert.DeserializeObject<Dictionary<string, string>>(httpResponseMessage.Content.ReadAsStringAsync().Result)["token"] ;
         }
 
         private string UserToJson(string username, string password)

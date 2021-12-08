@@ -66,9 +66,9 @@ namespace GUI.ViewModels
             {
                 try
                 {
-                    var bytesArray = Encoding.UTF8.GetBytes(token);
-                    var base64String = Convert.ToBase64String(bytesArray);
-                    // HttpService.GetHttpService().SetToken(base64String);
+                    // var bytesArray = Encoding.UTF8.GetBytes(token);
+                    // var base64String = Convert.ToBase64String(bytesArray);
+                    HttpService.GetHttpService().SetToken(token);
                     LoggedIn = true;
                 }
                 catch

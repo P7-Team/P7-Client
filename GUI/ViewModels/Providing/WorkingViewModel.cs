@@ -76,14 +76,6 @@ namespace GUI.ViewModels.Providing
             set => SetProperty(ref _sourceProgram, value);
         }
 
-        private string _input;
-
-        public string Input
-        {
-            get => _input;
-            set => SetProperty(ref _input, value);
-        }
-
         private bool _stopWorkingAfterThisTask;
         public bool StopWorkingAfterThisTask
         {
@@ -124,13 +116,14 @@ namespace GUI.ViewModels.Providing
 
             _getCurrentTaskThread = new Thread(() =>
             {
-                SourceProgram = "No program for now...";
+                // SourceProgram = "No program for now...";
+                SourceProgram = "";
                 Status = "Getting task";
                 do
                 {
                     try
                     {
-                        Thread.Sleep(1000);
+                        Thread.Sleep(500);
                     }
                     catch (ThreadInterruptedException e)
                     {
@@ -143,7 +136,7 @@ namespace GUI.ViewModels.Providing
                 Status = "Working on task";
                 // Get batch information, set appropriate fields
 
-                SourceProgram = CurrentTask.getSource();
+                // SourceProgram = CurrentTask.getSource();
 
                 // Start a task timer?? 
             })
