@@ -51,6 +51,8 @@
                             IsEnabled="{Binding Path=ResultsAreReady}"
                             Command="{Binding Path=SaveResultsCommand}"/>
                     
+                    <Button Content="Fetch Batches" Command="{Binding Path=FetchBatchesCommand}"/>
+                    
                 </StackPanel>
             </Grid>
         </Grid>

@@ -25,6 +25,11 @@ namespace GUI.ViewModels
         public ICommand SaveResultsCommand => _saveResultsCommand;
         private readonly DelegateCommand _saveResultsCommand;
 
+        public ICommand FetchBatchesCommand => _fetchBatchesCommand;
+        private readonly DelegateCommand _fetchBatchesCommand;
+
+
+
         private bool _resultsAreReady;
 
         public bool ResultsAreReady
@@ -44,6 +49,7 @@ namespace GUI.ViewModels
             MyBatchesList = new List<BatchStatus>();
 
             _saveResultsCommand = new DelegateCommand(OnSaveResults);
+            _fetchBatchesCommand = new DelegateCommand(OnFetchCommands);
 
             ResultsAreReady = true;
         }
@@ -54,6 +60,11 @@ namespace GUI.ViewModels
 
             var path = "C:/Users/aneso/Documents";
             _batchClient.GetResult(MyBatchesList, path);
+        }
+
+        private void OnFetchCommands(object parameters)
+        {
+            _stateManager.StartFetchingBatches();
         }
 
         private void FetchedBatch()
