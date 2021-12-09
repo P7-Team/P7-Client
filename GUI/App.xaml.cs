@@ -17,8 +17,8 @@ namespace GUI
     {
         public App()
         {
-            // HttpService.GetHttpService("http://164.90.236.116:80/");
-            HttpService.GetHttpService("http://localhost:5000/");
+            HttpService.GetHttpService("http://164.90.236.116:80/");
+            // HttpService.GetHttpService("http://localhost:5000/");
         }
     }
 }
