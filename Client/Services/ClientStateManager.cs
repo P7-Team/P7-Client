@@ -202,7 +202,7 @@ namespace Client.Services
                     Trace.WriteLine("I just asked for a task");
                     if (_currentTask != null)
                     {
-                        Trace.WriteLine("Started working on task " + _currentTask.Id);
+                        Trace.WriteLine("Started working on task " + _currentTask.Id + "." + _currentTask.Number + "." + _currentTask.SubNumber);
                         _status = Status.Working;
                     
                         // Initiates a heartbeat thread which sends heartbeats.
