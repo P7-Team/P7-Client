@@ -75,28 +75,6 @@ namespace Client_app
         }
 
         [Fact]
-        public void PathToSourceIsEmpty_ArgumentExceptionThrown()
-        {
-            var completer = new InterpretedTaskCompleter(_pathToPython, "", "test1.py");
-
-            Assert.Throws<ArgumentException>(() =>
-            {
-                completer.Run();
-            });
-        }
-        
-        [Fact]
-        public void PathToSourceIsNotEmptyButWrong_ArgumentExceptionThrown()
-        {
-            var completer = new InterpretedTaskCompleter(_pathToPython, "/", "test1.py");
-
-            Assert.Throws<ArgumentException>(() =>
-            {
-                completer.Run();
-            });
-        }
-
-        [Fact]
         public void SourceDoesNotUseOtherInput_ResultIsOutput()
         {
             var completer = new InterpretedTaskCompleter(_pathToPython, _pathToDirectory, "test1.py");
