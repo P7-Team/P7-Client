@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Text;
 using Client.Clients;
 using Client.Interfaces;
@@ -136,7 +137,7 @@ namespace Client_app
             MockClient httpClient = new MockClient();
             TaskClient client = new TaskClient(httpClient);
 
-            CompletedTask completedTask = new CompletedTask(1, new MemoryStream());
+            CompletedTask completedTask = new CompletedTask(1.ToString(), 1.ToString(), 1.ToString(), new MemoryStream());
 
             client.AddResult(completedTask);
 
@@ -152,7 +153,7 @@ namespace Client_app
             MemoryStream stream = new MemoryStream();
             stream.Write(Encoding.UTF8.GetBytes("test"));
 
-            CompletedTask completedTask = new CompletedTask(1, stream);
+            CompletedTask completedTask = new CompletedTask(1.ToString(), 1.ToString(), 1.ToString(), stream);
 
             client.AddResult(completedTask);
 
