@@ -7,7 +7,7 @@ namespace GUI.Views
     {
         public MainWindow()
         {
-            var viewModel = new MainViewModel();
+            var viewModel = new RequestingViewModel();
 
             DataContext = viewModel;
             InitializeComponent();

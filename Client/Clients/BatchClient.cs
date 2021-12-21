@@ -53,37 +53,32 @@ namespace Client.Clients
 
         public List<BatchStatus> GetBatchStatus()
         {
-
             try
             {
                 HttpResponseMessage response = _service.Get("api/batch/status");
-                List<BatchStatus> _batchStatuslist=  new List<BatchStatus>(); 
-
-                //  If resice a success resonse 
+                List<BatchStatus> batchStatusList=  new List<BatchStatus>();
+                
                 if (response.IsSuccessStatusCode && response.Content != null)
                 {
                     try
                     {
-                        _batchStatuslist = JsonConvert.DeserializeObject<List<BatchStatus>>(response.Content.ReadAsStringAsync().Result);
+                        batchStatusList = JsonConvert.DeserializeObject<List<BatchStatus>>(response.Content.ReadAsStringAsync().Result);
                     }
                     catch (ArgumentNullException e)
                     {
-                        Console.WriteLine(" Something when wrong with downloading Batches Status list ", e);
-                        throw e;
+                        Console.WriteLine(" Something when wrong with downloading Batches Status list ");
+                        throw;
                     }
-                    return _batchStatuslist;
+                    return batchStatusList;
                 }
-                else
-                {
-                    Console.WriteLine("BatchesStatus could not be Received from a server");
-                    return _batchStatuslist;
-                }
+                Console.WriteLine("BatchesStatus could not be Received from a server");
+                return batchStatusList;
             }
             catch (HttpRequestException ex)
             {
                 Console.WriteLine("\nException Caught!");
                 Console.WriteLine("Message :{0} ", ex.Message);
-                throw ex;
+                throw;
             }
         }
 

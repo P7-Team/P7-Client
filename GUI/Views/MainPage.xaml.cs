@@ -7,11 +7,11 @@ namespace GUI.Views
 {
     public partial class MainPage : Page
     {
-        private readonly MainViewModel _viewModel;
+        private readonly RequestingViewModel _viewModel;
         
         public MainPage()
         {
-            _viewModel = new MainViewModel();
+            _viewModel = new RequestingViewModel();
 
             DataContext = _viewModel;
             InitializeComponent();

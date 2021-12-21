@@ -70,18 +70,10 @@ namespace Client.Services
         /// </summary>
         public void Run()
         {
-            _heartBeatThread = new Thread(HeartbeatThreadHandler)
-            {
-                IsBackground = true
-            };
-            _taskThread = new Thread(TaskThreadHandler)
-            {
-                IsBackground = true
-            };
-            _batchThread = new Thread(BatchThreadHandler)
-            {
-                IsBackground = true
-            };
+            _heartBeatThread = new Thread(HeartbeatThreadHandler) { IsBackground = true };
+            _taskThread = new Thread(TaskThreadHandler) { IsBackground = true };
+            _batchThread = new Thread(BatchThreadHandler) { IsBackground = true };
+            
             _working = false;
             _heartbearting = false;
             _fetchingBatches = true;
@@ -163,15 +155,15 @@ namespace Client.Services
                     switch (_status)
                     {
                         case Status.Working:
-                            Console.WriteLine("Sent working");
+                            Trace.WriteLine("Sent working");
                             _heartbeatClient.SendHeartbeatWorking();
                             break;
                         case Status.Done:
-                            Console.WriteLine("Sent heartbeat");
+                            Trace.WriteLine("Sent heartbeat");
                             _heartbeatClient.SendHeartbeatDone();
                             break;
                         case Status.ShuttingDown:
-                            Console.WriteLine("Sent shutdown");
+                            Trace.WriteLine("Sent shutdown");
                             _heartbeatClient.SendHeartbeatShuttingDown();
                             break;
                         default:

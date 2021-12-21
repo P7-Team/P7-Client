@@ -10,16 +10,16 @@ using GUI.Helpers;
 
 namespace GUI.ViewModels
 {
-    public class MainViewModel : ViewModelBase
+    public class RequestingViewModel : ViewModelBase
     {
-        private ClientStateManager _stateManager;
-        private BatchClient _batchClient;
+        private readonly ClientStateManager _stateManager;
+        private readonly BatchClient _batchClient;
 
-        private List<BatchStatus> _myBatchesList;
-        public List<BatchStatus> MyBatchesList
+        private List<BatchStatus> _myBatchStatusList;
+        public List<BatchStatus> MyBatchStatusList
         {
-            get => _myBatchesList;
-            set => SetProperty(ref _myBatchesList, value);
+            get => _myBatchStatusList;
+            set => SetProperty(ref _myBatchStatusList, value);
         }
         
         public ICommand SaveResultsCommand => _saveResultsCommand;
@@ -38,15 +38,15 @@ namespace GUI.ViewModels
             set => SetProperty(ref _resultsAreReady, value);
         }
 
-        public MainViewModel()
+        public RequestingViewModel()
         {
             _stateManager = ClientStateManager.GetClientStateManager();
             _batchClient = new BatchClient(HttpService.GetHttpService());
 
-            _stateManager.FetchedBatch += FetchedBatch;
+            _stateManager.FetchedBatch += BatchesFetched;
             _stateManager.Run();
 
-            MyBatchesList = new List<BatchStatus>();
+            MyBatchStatusList = new List<BatchStatus>();
 
             _saveResultsCommand = new DelegateCommand(OnSaveResults);
             _fetchBatchesCommand = new DelegateCommand(OnFetchCommands);
@@ -56,10 +56,10 @@ namespace GUI.ViewModels
 
         private void OnSaveResults(object parameters)
         {
-            MyBatchesList = _stateManager.GetBatchStatuses();
-
+            MyBatchStatusList = _stateManager.GetBatchStatuses();
+            
             var path = "C:/Users/aneso/Documents";
-            _batchClient.GetResult(MyBatchesList, path);
+            _batchClient.GetResult(MyBatchStatusList, path);
         }
 
         private void OnFetchCommands(object parameters)
@@ -67,9 +67,9 @@ namespace GUI.ViewModels
             _stateManager.StartFetchingBatches();
         }
 
-        private void FetchedBatch()
+        private void BatchesFetched()
         {
-            MyBatchesList = _stateManager.GetBatchStatuses();
+            MyBatchStatusList = _stateManager.GetBatchStatuses();
         }
     }
 }
