@@ -157,7 +157,7 @@ namespace Client_app
 
             client.AddResult(completedTask);
 
-            Assert.Contains("Content-Disposition: form-data; name=id", httpClient.Request.Content.ReadAsStringAsync().Result);
+            Assert.Contains("Content-Disposition: form-data; name=BatchId", httpClient.Request.Content.ReadAsStringAsync().Result);
             Assert.Contains("test", await httpClient.Request.Content.ReadAsStringAsync());
         }
     }
