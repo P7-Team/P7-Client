@@ -34,7 +34,7 @@ namespace Client.Clients
             // TODO: Use the username in the UI
             return !httpResponseMessage.IsSuccessStatusCode
                 ? ""
-                : JsonConvert.DeserializeObject<Dictionary<string, string>>(httpResponseMessage.Content.ReadAsStringAsync().Result)["token"] ;
+                : JsonConvert.DeserializeObject<Dictionary<string, string>>(httpResponseMessage.Content.ReadAsStringAsync().Result)["token"];
         }
 
         private string UserToJson(string username, string password)
