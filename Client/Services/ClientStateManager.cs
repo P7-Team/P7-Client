@@ -34,7 +34,7 @@ namespace Client.Services
         private readonly TimeSpan _heartbeatTimeout;
         private readonly TimeSpan _batchTimeout;
         private readonly TimeSpan _taskTimeout;
-        private readonly Dictionary<string, string> _config;
+        private readonly ConfigManager _config;
         
         private bool _shutdown;
         private bool _working;
@@ -54,7 +54,7 @@ namespace Client.Services
             _heartbeatClient = new HeartbeatClient(httpService);
             _taskClient = new TaskClient(httpService);
             _batchClient = new BatchClient(httpService);
-            _config = new ConfigManager().GetConfig();
+            _config = new ConfigManager();
             
             _heartbeatTimeout = new TimeSpan(0, 5, 0);
             _batchTimeout = new TimeSpan(0, 0, 2);
@@ -189,7 +189,7 @@ namespace Client.Services
             {
                 while (_working)
                 {
-                    _currentTask = _taskClient.GetTask(_config["WorkingDirectory"]).Result;
+                    _currentTask = _taskClient.GetTask(_config.GetConfig("WorkingDirectory")).Result;
 
                     Trace.WriteLine("I just asked for a task");
                     if (_currentTask != null)
@@ -207,7 +207,7 @@ namespace Client.Services
                         
                         // Setup the task completer and run the task
                         IInterpretedTaskCompleter interpretedTaskCompleter =
-                            new InterpretedTaskCompleter(_config["InterpreterPath"], _config["WorkingDirectory"],
+                            new InterpretedTaskCompleter(_config.GetConfig("InterpreterPath"), _config.GetConfig("WorkingDirectory"),
                                 _currentTask.getSource());
 
                         interpretedTaskCompleter.Run();

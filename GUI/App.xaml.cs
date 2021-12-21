@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
-using Client.Interfaces;
 using Client.Services;
+using Microsoft.Extensions.Configuration;
 
 namespace GUI
 {
@@ -17,8 +12,10 @@ namespace GUI
     {
         public App()
         {
-            HttpService.GetHttpService("http://164.90.236.116:80/");
-            // HttpService.GetHttpService("http://localhost:5000/");
+            IConfigurationRoot config = new ConfigurationBuilder().SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json").Build();
+            string ip = config.GetValue<string>("IP");
+            HttpService.GetHttpService( ip);
         }
     }
 }
