@@ -1,0 +1,60 @@
+﻿<Page x:Class="GUI.Views.MainPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:GUI.Views"
+      xmlns:viewModels="clr-namespace:GUI.ViewModels"
+      mc:Ignorable="d"
+      Title="MainPage" Width="800" Height="600">
+    
+    <!-- <Page.DataContext> -->
+    <!--     <viewModels:MainViewModel/> -->
+    <!-- </Page.DataContext> -->
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.1*" />
+            <RowDefinition Height ="0.9*" />
+        </Grid.RowDefinitions>
+        
+        <Grid Background="CornflowerBlue" Grid.Row="0">
+            <!-- User stuff and points -->
+            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                <TextBlock Margin="0, 0, 10, 0">Logged in user</TextBlock>
+                
+                <TextBlock>Points</TextBlock>
+            </StackPanel>
+        </Grid>
+        
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.8*"/>
+                <ColumnDefinition Width="0.2*" />
+            </Grid.ColumnDefinitions>
+            
+            <!-- Providing -->
+            <Grid Background="White" Grid.Column="0">
+                <Frame NavigationUIVisibility="Hidden" Source="Providing/NotWorking.xaml"/>
+            </Grid>
+            
+            <!-- Requesting -->
+            <Grid Background="#ABABAB" Grid.Column="1">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top">
+                    <TextBlock>My Projects</TextBlock>
+                    
+                    <Button Content="Add Project" Click="CreateRequest"></Button>
+                    
+                    <ItemsControl x:Name="BatchStack" ItemsSource="{Binding Path=MyBatchesList}" HorizontalAlignment="Center"/>
+                    
+                    <Button Content="Save Results" 
+                            IsEnabled="{Binding Path=ResultsAreReady}"
+                            Command="{Binding Path=SaveResultsCommand}"/>
+                    
+                    <Button Content="Fetch Batches" Command="{Binding Path=FetchBatchesCommand}"/>
+                    
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>
