@@ -48,9 +48,11 @@ namespace Client.Services
                 }
                 else
                 {
-                    throw new ArgumentException(
-                        "Could not find source file, or source file is not readable. Interpreter says: " +
-                        standardError);
+                    _result = standardError;
+                    _result = _result.TrimEnd('\r', '\n');
+                    // throw new ArgumentException(
+                    //     "Could not find source file, or source file is not readable. Interpreter says: " +
+                    //     standardError);
                 }
             }
             catch (ArgumentException)

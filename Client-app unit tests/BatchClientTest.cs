@@ -7,8 +7,9 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
+using Client.Models;
 using Xunit;
+using Task = System.Threading.Tasks.Task;
 
 namespace Client_app
 {
@@ -34,7 +35,7 @@ namespace Client_app
                 {
                     MemoryStream stringAsStream = new MemoryStream();
                     StreamWriter streamData = new StreamWriter(stringAsStream, UnicodeEncoding.UTF8);
-                    streamData.Write("this is data in result of one bacth");
+                    streamData.Write("this is data in result of one batch");
                     stringAsStream.Position = 0L;
                     responseMessage.Content = new StringContent(streamData.ToString());
                 }
@@ -43,23 +44,25 @@ namespace Client_app
                 {
                     if (_statusCode == HttpStatusCode.OK) 
                     { 
-                    BatchStatus batchStatus = new BatchStatus(true, 1, 5, 10);
-                    BatchStatus batchStatus1 = new BatchStatus(false, 2, 1, 2);
-                    BatchStatus batchStatus2 = new BatchStatus(true, 3, 2, 2);
-                    BatchStatus batchStatus3 = new BatchStatus(false, 4, 3, 5);
+                        BatchStatus batchStatus = new BatchStatus(true, 1, 5, 10);
+                        BatchStatus batchStatus1 = new BatchStatus(false, 2, 1, 2);
+                        BatchStatus batchStatus2 = new BatchStatus(true, 3, 2, 2);
+                        BatchStatus batchStatus3 = new BatchStatus(false, 4, 3, 5);
 
-                    batchStatus.Files.Add("testFile");
-                    batchStatus2.Files.Add("testFile1");
-                    batchStatus2.Files.Add("testFile2");
+                        batchStatus.Files.Add("testFile");
+                        batchStatus2.Files.Add("testFile1");
+                        batchStatus2.Files.Add("testFile2");
 
-                    List<BatchStatus> TestbatchStatuses = new List<BatchStatus>();
-                    TestbatchStatuses.Add(batchStatus);
-                    TestbatchStatuses.Add(batchStatus1);
-                    TestbatchStatuses.Add(batchStatus2);
-                    TestbatchStatuses.Add(batchStatus3);
+                        List<BatchStatus> testBatchStatuses = new List<BatchStatus>
+                        {
+                            batchStatus,
+                            batchStatus1,
+                            batchStatus2,
+                            batchStatus3
+                        };
 
-                    string json = JsonConvert.SerializeObject(TestbatchStatuses, Formatting.Indented);
-                    responseMessage.Content = new StringContent(json);
+                        string json = JsonConvert.SerializeObject(testBatchStatuses, Formatting.Indented);
+                        responseMessage.Content = new StringContent(json);
                     }
                     else
                     {

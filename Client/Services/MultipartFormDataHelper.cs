@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Text;
 
 namespace Client.Services
 {
     public class MultipartFormDataHelper
     {
         public static MultipartFormDataContent CreateContent(IDictionary<string, string> formdata,
-            IDictionary<string, Stream> files)
+            IEnumerable<KeyValuePair<string, Stream>> files)
         {
             MultipartFormDataContent content = new MultipartFormDataContent();
 

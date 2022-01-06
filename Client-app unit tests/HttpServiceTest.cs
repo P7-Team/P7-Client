@@ -21,7 +21,7 @@ namespace Client_app
         {
             const string ip = "http://164.90.236.116:80/";
 
-            IHttpService service = new HttpService(ip, "1234");
+            IHttpService service = HttpService.GetHttpService(ip, "1234");
 
             var message = new HttpRequestMessage(HttpMethod.Get, "/api/task/ready");
 

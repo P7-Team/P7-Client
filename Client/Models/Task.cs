@@ -2,14 +2,21 @@ namespace Client.Models
 {
     public class Task
     {
+        // The name of the source file
         private string _source;
 
-        private string _input;
+        public string Id { get;  }
+        public string Number { get; }
+        public string SubNumber { get; }
 
-        public Task(string source, string input)
+        // private string _input;
+
+        public Task(string source, string id, string number, string subNumber)
         {
             _source = source;
-            _input = input;
+            Id = id;
+            Number = number;
+            SubNumber = subNumber;
         }
 
         public string getSource()

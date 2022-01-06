@@ -22,10 +22,10 @@ namespace Client_app
 
         public HttpResponseMessage Post(string uri, HttpContent content)
         {
-            string output = content.ReadAsStringAsync().Result;
+            string input = content.ReadAsStringAsync().Result;
             // Parsed input
             Dictionary<string, string> dictionary =
-                JsonConvert.DeserializeObject<Dictionary<string, string>>(output);
+                JsonConvert.DeserializeObject<Dictionary<string, string>>(input);
 
             // Already existing users in the system
             List<string> users = new List<string> {"username", "GenericUsername", "TotallyNotHacker"};
@@ -44,8 +44,10 @@ namespace Client_app
                     !BCrypt.Net.BCrypt.Verify(dictionary["password"], hashedPassword))
                     return new HttpResponseMessage(HttpStatusCode.NotFound);
 
+                Dictionary<string, string> output = new Dictionary<string, string>();
+                output["token"] = dictionary["username"] + dictionary["password"];
                 responseMessage.Content =
-                    new StringContent(dictionary["username"] + dictionary["password"]);
+                    new StringContent(JsonConvert.SerializeObject(output));
                 responseMessage.StatusCode = HttpStatusCode.Accepted;
                 return responseMessage;
             }

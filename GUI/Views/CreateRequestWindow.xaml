@@ -1,0 +1,96 @@
+﻿<Window x:Class="GUI.Views.CreateRequestWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:GUI.Views"
+        xmlns:viewModels="clr-namespace:GUI.ViewModels"
+        mc:Ignorable="d"
+        Title="CreateRequestWindow" Height="450" Width="450">
+    
+    <!-- <Page.DataContext> -->
+    <!--     <viewModels:CreateRequestViewModel/> -->
+    <!-- </Page.DataContext> -->
+    <Grid HorizontalAlignment="Center">
+        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Width="400">
+            <TextBlock Margin="10 10 10 0">
+                Title
+            </TextBlock>
+            
+            <TextBox Text="{Binding Path=BatchTitle}" Margin="10 0 10 0"/>
+            
+            <TextBlock Margin="10 10 10 0">
+                Description
+            </TextBlock>
+            
+            <TextBox Text="{Binding Path=BatchDescription}" Margin="10 0 10 0"/>
+            
+            <TextBlock Margin="10 10 10 0">
+                Source Language
+            </TextBlock>
+            
+            <ComboBox SelectedIndex="0" SelectionChanged="SourceLanguageChanged" Margin="10 0 10 0">
+                <TextBlock>
+                    Python
+                </TextBlock>
+            </ComboBox>
+            
+            <TextBlock Margin="10 10 10 0">
+                Source Version
+            </TextBlock>
+            
+            <ComboBox SelectedIndex="0" SelectionChanged="SourceVersionChanged" Margin="10 0 10 0">
+                <TextBlock>
+                    3.9
+                </TextBlock>
+            </ComboBox>
+            
+            <TextBlock Margin="10 10 10 0">
+                Source Program
+            </TextBlock>
+            
+            <TextBox Height="50" 
+                     Text="{Binding Path=SourceProgram}" 
+                     TextWrapping="Wrap" 
+                     AcceptsReturn="True" 
+                     VerticalScrollBarVisibility="Auto"
+                     Margin="10 0 10 0"/>
+            
+            <TextBlock Margin="10 10 10 0">
+                Input files
+            </TextBlock>
+            
+            <TextBox Text="{Binding Path=InputFiles}" Margin="10 0 10 0"/>
+            
+            <TextBlock Margin="10 10 10 0">
+                Replication
+            </TextBlock>
+            
+            <ComboBox SelectedIndex="0" SelectionChanged="ReplicationChanged" Margin="10 0 10 0">
+                <TextBlock>
+                    1
+                </TextBlock>
+                <TextBlock>
+                    2
+                </TextBlock>
+                <TextBlock>
+                    3
+                </TextBlock>
+            </ComboBox>
+            
+            <Button Content="Upload Batch" 
+                    IsEnabled="{Binding Path=BatchNotUploaded}"
+                    Command="{Binding Path=CreateRequestCommand}"
+                    Margin="10 10 10 0"/>
+            
+            <Button Content="Close" 
+                    IsEnabled="{Binding Path=BatchUploaded}" 
+                    Click="CloseWindow"
+                    Margin="10 0 10 10"/>
+            
+            
+            <TextBlock Text="{Binding Path=UploadStatus}"/>
+            
+        </StackPanel>
+    </Grid>
+</Window>

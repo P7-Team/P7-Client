@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using BCrypt.Net;
 using Client.Interfaces;
 using Newtonsoft.Json;
@@ -20,19 +21,20 @@ namespace Client.Clients
 
         public bool CreateUser(string username, string password)
         {
-            HttpContent content = new StringContent(UserToJson(username, password));
-            HttpResponseMessage httpResponseMessage = _httpService.Post("/user/signup", content);
+            HttpContent content = new StringContent(UserToJson(username, password), Encoding.UTF8, "application/json");
+            HttpResponseMessage httpResponseMessage = _httpService.Post("api/user/signup", content);
             return httpResponseMessage.IsSuccessStatusCode;
         }
 
         public string LoginUser(string username, string password)
         {
-            HttpContent content = new StringContent(UserToJson(username, password));
-            HttpResponseMessage httpResponseMessage = _httpService.Post("/user/login", content);
+            HttpContent content = new StringContent(UserToJson(username, password), Encoding.UTF8, "application/json");
+            HttpResponseMessage httpResponseMessage = _httpService.Post("api/user/login", content);
 
+            // TODO: Use the username in the UI
             return !httpResponseMessage.IsSuccessStatusCode
                 ? ""
-                : httpResponseMessage.Content.ReadAsStringAsync().Result;
+                : JsonConvert.DeserializeObject<Dictionary<string, string>>(httpResponseMessage.Content.ReadAsStringAsync().Result)["token"];
         }
 
         private string UserToJson(string username, string password)
