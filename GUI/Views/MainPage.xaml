@@ -44,8 +44,8 @@
                     <TextBlock>My Projects</TextBlock>
                     
                     <Button Content="Add Project" Click="CreateRequest"></Button>
-                    
-                    <ItemsControl x:Name="BatchStack" ItemsSource="{Binding Path=MyBatchesList}" HorizontalAlignment="Center"/>
+
+                    <ItemsControl x:Name="BatchStack" ItemsSource="{Binding Path=MyBatchStatusList}" HorizontalAlignment="Center"/>
                     
                     <Button Content="Save Results" 
                             IsEnabled="{Binding Path=ResultsAreReady}"

@@ -1,5 +1,5 @@
 def main():
-    f = open("testInput")
+    f = open("input")
     
     fileContent = f.read()
     
